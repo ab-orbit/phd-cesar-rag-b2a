@@ -107,77 +107,143 @@ def criar_triplas_trocas_valor() -> str:
     """
     Cria triplas RDF para trocas de valor entre atores.
 
-    Modelagem e3value: ValueExchange conecta ValuePorts de diferentes atores.
-    IMPORTANTE: Usar e3:has_value_port na direção ATOR → PORTA (não porta → ator)
+    Modelagem e3value com RECIPROCIDADE:
+    Cada troca tem duas direções (produto + dinheiro):
+    - Fornecedor: OUT (offers produto) + IN (requests dinheiro) = RECEITA
+    - Comprador: IN (requests produto) + OUT (offers dinheiro) = CUSTO
     """
     return """
 # Trocas de Valor (Value Exchanges)
 
-# Troca 1: Tecelagem SP → Rota do Mar (tecidos por dinheiro)
-exchange:tecidos_rotamar a e3:ValueExchange ;
-    rdfs:label "Compra de tecidos pela Rota do Mar" ;
-    e3:connects port:tecelagem_out_tecidos, port:rotamar_in_tecidos .
+# ===== Troca 1: Tecelagem SP → Rota do Mar (tecidos ↔ dinheiro) =====
 
-# Portas de valor da Tecelagem SP
-actor:TecelagemSP e3:has_value_port port:tecelagem_out_tecidos .
+# Tecelagem SP entrega tecidos e recebe dinheiro
+actor:TecelagemSP e3:has_value_port port:tecelagem_out_tecidos, port:tecelagem_in_dinheiro_tecidos .
 
 port:tecelagem_out_tecidos a e3:ValuePort ;
     e3:direction "out" ;
     e3:offers object:tecidos_planos .
 
-# Portas de valor da Rota do Mar
-actor:RotaDoMar e3:has_value_port port:rotamar_in_tecidos .
+port:tecelagem_in_dinheiro_tecidos a e3:ValuePort ;
+    e3:direction "in" ;
+    e3:requests object:dinheiro_tecidos .
+
+# Rota do Mar recebe tecidos e paga dinheiro
+actor:RotaDoMar e3:has_value_port port:rotamar_in_tecidos, port:rotamar_out_dinheiro_tecidos .
 
 port:rotamar_in_tecidos a e3:ValuePort ;
     e3:direction "in" ;
     e3:requests object:tecidos_planos .
 
+port:rotamar_out_dinheiro_tecidos a e3:ValuePort ;
+    e3:direction "out" ;
+    e3:offers object:dinheiro_tecidos .
+
+# ValueExchange conecta as 4 portas (2 de cada lado)
+exchange:tecidos_rotamar a e3:ValueExchange ;
+    rdfs:label "Compra de tecidos pela Rota do Mar" ;
+    e3:connects port:tecelagem_out_tecidos, port:rotamar_in_tecidos .
+
+exchange:dinheiro_tecidos a e3:ValueExchange ;
+    rdfs:label "Pagamento por tecidos" ;
+    e3:connects port:rotamar_out_dinheiro_tecidos, port:tecelagem_in_dinheiro_tecidos .
+
+# Objetos de valor
 object:tecidos_planos a e3:ValueObject ;
     rdfs:label "Tecidos Planos (popeline, brim)" ;
     e3:economic_value 15000.00 ;
     e3:unit "R$ por tonelada" .
 
-# Troca 2: Rota do Mar → Feira Sulanca (roupas por dinheiro)
-exchange:roupas_feira a e3:ValueExchange ;
-    rdfs:label "Venda de confecções para a Feira da Sulanca" ;
-    e3:connects port:rotamar_out_roupas, port:feira_in_roupas .
+object:dinheiro_tecidos a e3:ValueObject ;
+    rdfs:label "Pagamento por Tecidos" ;
+    e3:economic_value 15000.00 ;
+    e3:unit "R$ por tonelada" .
 
-actor:RotaDoMar e3:has_value_port port:rotamar_out_roupas .
+# ===== Troca 2: Rota do Mar → Feira Sulanca (roupas ↔ dinheiro) =====
+
+# Rota do Mar entrega roupas e recebe dinheiro (RECEITA!)
+actor:RotaDoMar e3:has_value_port port:rotamar_out_roupas, port:rotamar_in_dinheiro_roupas .
 
 port:rotamar_out_roupas a e3:ValuePort ;
     e3:direction "out" ;
     e3:offers object:roupas_casual .
 
-actor:FeiraSulancaCaruaru e3:has_value_port port:feira_in_roupas .
+port:rotamar_in_dinheiro_roupas a e3:ValuePort ;
+    e3:direction "in" ;
+    e3:requests object:dinheiro_roupas .
+
+# Feira Sulanca recebe roupas e paga dinheiro
+actor:FeiraSulancaCaruaru e3:has_value_port port:feira_in_roupas, port:feira_out_dinheiro_roupas .
 
 port:feira_in_roupas a e3:ValuePort ;
     e3:direction "in" ;
     e3:requests object:roupas_casual .
 
+port:feira_out_dinheiro_roupas a e3:ValuePort ;
+    e3:direction "out" ;
+    e3:offers object:dinheiro_roupas .
+
+# ValueExchanges (reciprocidade)
+exchange:roupas_feira a e3:ValueExchange ;
+    rdfs:label "Venda de confecções para a Feira da Sulanca" ;
+    e3:connects port:rotamar_out_roupas, port:feira_in_roupas .
+
+exchange:dinheiro_roupas a e3:ValueExchange ;
+    rdfs:label "Pagamento por confecções" ;
+    e3:connects port:feira_out_dinheiro_roupas, port:rotamar_in_dinheiro_roupas .
+
+# Objetos de valor
 object:roupas_casual a e3:ValueObject ;
     rdfs:label "Roupas Casuais e Jeans" ;
     e3:economic_value 45.00 ;
     e3:unit "R$ por peça (preço médio atacado)" .
 
-# Troca 3: Feira Sulanca → Lojistas Regionais
-exchange:feira_lojistas a e3:ValueExchange ;
-    rdfs:label "Venda atacadista para lojistas regionais" ;
-    e3:connects port:feira_out_atacado, port:lojistas_in_atacado .
+object:dinheiro_roupas a e3:ValueObject ;
+    rdfs:label "Pagamento por Roupas" ;
+    e3:economic_value 45.00 ;
+    e3:unit "R$ por peça" .
 
-actor:FeiraSulancaCaruaru e3:has_value_port port:feira_out_atacado .
+# ===== Troca 3: Feira Sulanca → Lojistas Regionais (roupas ↔ dinheiro) =====
+
+# Feira Sulanca entrega roupas e recebe dinheiro (RECEITA!)
+actor:FeiraSulancaCaruaru e3:has_value_port port:feira_out_atacado, port:feira_in_dinheiro_atacado .
 
 port:feira_out_atacado a e3:ValuePort ;
     e3:direction "out" ;
     e3:offers object:roupas_atacado .
 
-actor:LojistasRegionais e3:has_value_port port:lojistas_in_atacado .
+port:feira_in_dinheiro_atacado a e3:ValuePort ;
+    e3:direction "in" ;
+    e3:requests object:dinheiro_atacado .
+
+# Lojistas Regionais recebem roupas e pagam dinheiro
+actor:LojistasRegionais e3:has_value_port port:lojistas_in_atacado, port:lojistas_out_dinheiro_atacado .
 
 port:lojistas_in_atacado a e3:ValuePort ;
     e3:direction "in" ;
     e3:requests object:roupas_atacado .
 
+port:lojistas_out_dinheiro_atacado a e3:ValuePort ;
+    e3:direction "out" ;
+    e3:offers object:dinheiro_atacado .
+
+# ValueExchanges (reciprocidade)
+exchange:feira_lojistas a e3:ValueExchange ;
+    rdfs:label "Venda atacadista para lojistas regionais" ;
+    e3:connects port:feira_out_atacado, port:lojistas_in_atacado .
+
+exchange:dinheiro_atacado a e3:ValueExchange ;
+    rdfs:label "Pagamento por atacado" ;
+    e3:connects port:lojistas_out_dinheiro_atacado, port:feira_in_dinheiro_atacado .
+
+# Objetos de valor
 object:roupas_atacado a e3:ValueObject ;
     rdfs:label "Roupas para Revenda" ;
+    e3:economic_value 50.00 ;
+    e3:unit "R$ por peça" .
+
+object:dinheiro_atacado a e3:ValueObject ;
+    rdfs:label "Pagamento por Atacado" ;
     e3:economic_value 50.00 ;
     e3:unit "R$ por peça" .
 """

@@ -344,53 +344,80 @@ class ValueChainFederator:
         """
         Calcula lucratividade de um ator (e3value profitability sheet).
 
+        Lógica e3value:
+        - Porta IN + requests = RECEITA (o que você recebe de valor)
+        - Porta OUT + offers = CUSTO (o que você entrega/oferece)
+
         Args:
             ator_uri: URI do ator
 
         Returns:
             Dicionário com receitas, custos e lucro
         """
-        query = f"""
-        SELECT
-            (SUM(?valorEntrada) AS ?receitaTotal)
-            (SUM(?valorSaida) AS ?custoTotal)
+        # Buscar receitas e custos separadamente
+        # FILTRO: Apenas objetos monetários (URI contém "dinheiro")
+        query_receita = f"""
+        SELECT (SUM(?valor) AS ?total)
         WHERE {{
             GRAPH ?g {{
-                {{
-                    <{ator_uri}> e3:has_value_port ?portaEntrada .
-                    ?portaEntrada e3:direction "in" .
-                    ?portaEntrada e3:offers ?objEntrada .
-                    ?objEntrada e3:economic_value ?valorEntrada .
-                }}
-                UNION
-                {{
-                    <{ator_uri}> e3:has_value_port ?portaSaida .
-                    ?portaSaida e3:direction "out" .
-                    ?portaSaida e3:offers ?objSaida .
-                    ?objSaida e3:economic_value ?valorSaida .
-                }}
+                # Receita: portas IN que REQUESTAM DINHEIRO (receita monetária)
+                <{ator_uri}> e3:has_value_port ?porta .
+                ?porta e3:direction "in" .
+                ?porta e3:requests ?obj .
+                ?obj e3:economic_value ?valor .
+
+                # Filtro: apenas objetos monetários (dinheiro recebido)
+                FILTER(CONTAINS(STR(?obj), "dinheiro"))
             }}
         }}
         """
 
-        results = self.consultar(query)
+        query_custo = f"""
+        SELECT (SUM(?valor) AS ?total)
+        WHERE {{
+            GRAPH ?g {{
+                # Custo: portas OUT que OFERECEM DINHEIRO (pagamentos)
+                <{ator_uri}> e3:has_value_port ?porta .
+                ?porta e3:direction "out" .
+                ?porta e3:offers ?obj .
+                ?obj e3:economic_value ?valor .
 
-        if results and 'results' in results and len(results['results']['bindings']) > 0:
-            binding = results['results']['bindings'][0]
-            receita = float(binding.get('receitaTotal', {}).get('value', 0))
-            custo = float(binding.get('custoTotal', {}).get('value', 0))
-            lucro = receita - custo
-            margem = (lucro / receita * 100) if receita > 0 else 0
+                # Filtro: apenas objetos monetários (dinheiro pago)
+                FILTER(CONTAINS(STR(?obj), "dinheiro"))
+            }}
+        }}
+        """
 
-            return {
-                'ator': ator_uri,
-                'receita': receita,
-                'custo': custo,
-                'lucro': lucro,
-                'margem_percentual': round(margem, 2)
-            }
+        # Executar queries separadamente
+        result_receita = self.consultar(query_receita)
+        result_custo = self.consultar(query_custo)
 
-        return None
+        receita = 0.0
+        custo = 0.0
+
+        # Extrair receita
+        if result_receita and 'results' in result_receita and len(result_receita['results']['bindings']) > 0:
+            binding = result_receita['results']['bindings'][0]
+            if 'total' in binding:
+                receita = float(binding['total']['value'])
+
+        # Extrair custo
+        if result_custo and 'results' in result_custo and len(result_custo['results']['bindings']) > 0:
+            binding = result_custo['results']['bindings'][0]
+            if 'total' in binding:
+                custo = float(binding['total']['value'])
+
+        # Calcular lucro e margem
+        lucro = receita - custo
+        margem = (lucro / receita * 100) if receita > 0 else 0
+
+        return {
+            'ator': ator_uri,
+            'receita': receita,
+            'custo': custo,
+            'lucro': lucro,
+            'margem_percentual': round(margem, 2)
+        }
 
     def listar_capacidades(self, apenas_core: bool = False) -> List[Dict]:
         """
