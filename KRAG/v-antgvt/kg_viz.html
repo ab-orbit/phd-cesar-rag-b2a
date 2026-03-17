@@ -1,0 +1,155 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script src="lib/bindings/utils.js"></script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+        
+<center>
+<h1></h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1></h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 750px;
+                 background-color: #222222;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+
+             
+        </style>
+    </head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": "#2196F3", "font": {"color": "white"}, "id": "http://phd-cesar-rag/kg#Valor", "label": "Valor", "shape": "dot", "title": "http://phd-cesar-rag/kg#Valor"}, {"color": "#FAFAFA", "font": {"color": "white"}, "id": "http://phd-cesar-rag/kg#Biotecnologia", "label": "Biotecnologia", "shape": "dot", "title": "http://phd-cesar-rag/kg#Biotecnologia"}, {"color": "#2196F3", "font": {"color": "white"}, "id": "http://phd-cesar-rag/kg#Mat\u00e9ria-prima", "label": "Mat\u00e9ria-prima", "shape": "dot", "title": "http://phd-cesar-rag/kg#Mat\u00e9ria-prima"}, {"color": "#FAFAFA", "font": {"color": "white"}, "id": "http://phd-cesar-rag/kg#EntidadeCandidata", "label": "Entidade Candidata", "shape": "dot", "title": "http://phd-cesar-rag/kg#EntidadeCandidata"}, {"color": "#FAFAFA", "font": {"color": "white"}, "id": "http://www.rea.com/produces", "label": "produces", "shape": "dot", "title": "http://www.rea.com/produces"}, {"color": "#FAFAFA", "font": {"color": "white"}, "id": "http://www.rea.com/Event", "label": "Economic Event", "shape": "dot", "title": "http://www.rea.com/Event"}, {"color": "#FAFAFA", "font": {"color": "white"}, "id": "http://phd-cesar-rag/meta#Rejeitado", "label": "Rejeitado", "shape": "dot", "title": "http://phd-cesar-rag/meta#Rejeitado"}, {"color": "#FAFAFA", "font": {"color": "white"}, "id": "http://phd-cesar-rag/meta#Aprovado", "label": "Aprovado", "shape": "dot", "title": "http://phd-cesar-rag/meta#Aprovado"}, {"color": "#2196F3", "font": {"color": "white"}, "id": "http://phd-cesar-rag/kg#Risco", "label": "Risco", "shape": "dot", "title": "http://phd-cesar-rag/kg#Risco"}, {"color": "#FAFAFA", "font": {"color": "white"}, "id": "http://www.rea.com/consumes", "label": "consumes", "shape": "dot", "title": "http://www.rea.com/consumes"}, {"color": "#FAFAFA", "font": {"color": "white"}, "id": "http://www.rea.com/Resource", "label": "Economic Resource", "shape": "dot", "title": "http://www.rea.com/Resource"}, {"color": "#2196F3", "font": {"color": "white"}, "id": "http://phd-cesar-rag/kg#Pagamento", "label": "Pagamento", "shape": "dot", "title": "http://phd-cesar-rag/kg#Pagamento"}, {"color": "#FAFAFA", "font": {"color": "white"}, "id": "http://www.e3value.com/exchanges", "label": "exchanges", "shape": "dot", "title": "http://www.e3value.com/exchanges"}, {"color": "#FAFAFA", "font": {"color": "white"}, "id": "http://www.w3.org/2002/07/owl#ObjectProperty", "label": "ObjectProperty", "shape": "dot", "title": "http://www.w3.org/2002/07/owl#ObjectProperty"}, {"color": "#FAFAFA", "font": {"color": "white"}, "id": "http://www.omg.org/spec/VDML/ValueProposition", "label": "Value Proposition", "shape": "dot", "title": "http://www.omg.org/spec/VDML/ValueProposition"}, {"color": "#FAFAFA", "font": {"color": "white"}, "id": "http://www.w3.org/2002/07/owl#Class", "label": "Class", "shape": "dot", "title": "http://www.w3.org/2002/07/owl#Class"}, {"color": "#FAFAFA", "font": {"color": "white"}, "id": "http://www.rea.com/participatesIn", "label": "participates in", "shape": "dot", "title": "http://www.rea.com/participatesIn"}, {"color": "#FAFAFA", "font": {"color": "white"}, "id": "http://www.rea.com/Agent", "label": "Economic Agent", "shape": "dot", "title": "http://www.rea.com/Agent"}, {"color": "#FAFAFA", "font": {"color": "white"}, "id": "http://www.omg.org/spec/VDML/Capability", "label": "Capability", "shape": "dot", "title": "http://www.omg.org/spec/VDML/Capability"}, {"color": "#FAFAFA", "font": {"color": "white"}, "id": "http://www.omg.org/spec/VDML/delivers", "label": "delivers", "shape": "dot", "title": "http://www.omg.org/spec/VDML/delivers"}, {"color": "#FAFAFA", "font": {"color": "white"}, "id": "http://www.e3value.com/with", "label": "with actor", "shape": "dot", "title": "http://www.e3value.com/with"}, {"color": "#FAFAFA", "font": {"color": "white"}, "id": "http://www.e3value.com/ValueExchange", "label": "Value Exchange", "shape": "dot", "title": "http://www.e3value.com/ValueExchange"}, {"color": "#FAFAFA", "font": {"color": "white"}, "id": "http://www.omg.org/spec/VDML/BusinessNetwork", "label": "Business Network", "shape": "dot", "title": "http://www.omg.org/spec/VDML/BusinessNetwork"}, {"color": "#2196F3", "font": {"color": "white"}, "id": "http://phd-cesar-rag/kg#Satisfa\u00e7\u00e3o", "label": "Satisfa\u00e7\u00e3o", "shape": "dot", "title": "http://phd-cesar-rag/kg#Satisfa\u00e7\u00e3o"}, {"color": "#2196F3", "font": {"color": "white"}, "id": "http://phd-cesar-rag/kg#Processos", "label": "Processos", "shape": "dot", "title": "http://phd-cesar-rag/kg#Processos"}, {"color": "#FAFAFA", "font": {"color": "white"}, "id": "http://phd-cesar-rag/kg#Fornecedor", "label": "Fornecedor", "shape": "dot", "title": "http://phd-cesar-rag/kg#Fornecedor"}, {"color": "#FAFAFA", "font": {"color": "white"}, "id": "http://phd-cesar-rag/meta#Confirmado", "label": "Confirmado", "shape": "dot", "title": "http://phd-cesar-rag/meta#Confirmado"}, {"color": "#FAFAFA", "font": {"color": "white"}, "id": "http://www.e3value.com/ValueObject", "label": "Value Object", "shape": "dot", "title": "http://www.e3value.com/ValueObject"}, {"color": "#FAFAFA", "font": {"color": "white"}, "id": "http://phd-cesar-rag/meta#status", "label": "status", "shape": "dot", "title": "http://phd-cesar-rag/meta#status"}, {"color": "#FAFAFA", "font": {"color": "white"}, "id": "http://www.omg.org/spec/VDML/supports", "label": "supports", "shape": "dot", "title": "http://www.omg.org/spec/VDML/supports"}, {"color": "#FAFAFA", "font": {"color": "white"}, "id": "http://www.e3value.com/Actor", "label": "Actor", "shape": "dot", "title": "http://www.e3value.com/Actor"}, {"color": "#FAFAFA", "font": {"color": "white"}, "id": "http://phd-cesar-rag/kg#Servi\u00e7o", "label": "Servi\u00e7o", "shape": "dot", "title": "http://phd-cesar-rag/kg#Servi\u00e7o"}, {"color": "#FAFAFA", "font": {"color": "white"}, "id": "http://phd-cesar-rag/kg#Empresa", "label": "Empresa", "shape": "dot", "title": "http://phd-cesar-rag/kg#Empresa"}, {"color": "#FAFAFA", "font": {"color": "white"}, "id": "http://phd-cesar-rag/kg#Cliente", "label": "Cliente", "shape": "dot", "title": "http://phd-cesar-rag/kg#Cliente"}, {"color": "#FAFAFA", "font": {"color": "white"}, "id": "http://phd-cesar-rag/kg#Processo", "label": "Processo", "shape": "dot", "title": "http://phd-cesar-rag/kg#Processo"}, {"color": "#FAFAFA", "font": {"color": "white"}, "id": "http://www.w3.org/2002/07/owl#NamedIndividual", "label": "NamedIndividual", "shape": "dot", "title": "http://www.w3.org/2002/07/owl#NamedIndividual"}, {"color": "#FAFAFA", "font": {"color": "white"}, "id": "http://phd-cesar-rag/kg#Produto", "label": "Produto", "shape": "dot", "title": "http://phd-cesar-rag/kg#Produto"}, {"color": "#FAFAFA", "font": {"color": "white"}, "id": "http://phd-cesar-rag/meta#Candidato", "label": "Candidato", "shape": "dot", "title": "http://phd-cesar-rag/meta#Candidato"}]);
+                  edges = new vis.DataSet([{"arrows": "to", "from": "http://phd-cesar-rag/kg#Valor", "label": "type", "title": "type", "to": "http://phd-cesar-rag/kg#Biotecnologia"}, {"arrows": "to", "from": "http://phd-cesar-rag/kg#Valor", "label": "type", "title": "type", "to": "http://phd-cesar-rag/kg#EntidadeCandidata"}, {"arrows": "to", "from": "http://www.rea.com/produces", "label": "domain", "title": "domain", "to": "http://www.rea.com/Event"}, {"arrows": "to", "from": "http://phd-cesar-rag/kg#Valor", "label": "status", "title": "status", "to": "http://phd-cesar-rag/meta#Aprovado"}, {"arrows": "to", "from": "http://www.rea.com/consumes", "label": "domain", "title": "domain", "to": "http://www.rea.com/Event"}, {"arrows": "to", "from": "http://www.e3value.com/exchanges", "label": "type", "title": "type", "to": "http://www.w3.org/2002/07/owl#ObjectProperty"}, {"arrows": "to", "from": "http://www.omg.org/spec/VDML/ValueProposition", "label": "type", "title": "type", "to": "http://www.w3.org/2002/07/owl#Class"}, {"arrows": "to", "from": "http://www.rea.com/participatesIn", "label": "range", "title": "range", "to": "http://www.rea.com/Event"}, {"arrows": "to", "from": "http://phd-cesar-rag/kg#Pagamento", "label": "status", "title": "status", "to": "http://phd-cesar-rag/meta#Aprovado"}, {"arrows": "to", "from": "http://www.omg.org/spec/VDML/Capability", "label": "type", "title": "type", "to": "http://www.w3.org/2002/07/owl#Class"}, {"arrows": "to", "from": "http://www.omg.org/spec/VDML/delivers", "label": "type", "title": "type", "to": "http://www.w3.org/2002/07/owl#ObjectProperty"}, {"arrows": "to", "from": "http://www.omg.org/spec/VDML/delivers", "label": "domain", "title": "domain", "to": "http://www.omg.org/spec/VDML/Capability"}, {"arrows": "to", "from": "http://www.e3value.com/ValueExchange", "label": "type", "title": "type", "to": "http://www.w3.org/2002/07/owl#Class"}, {"arrows": "to", "from": "http://phd-cesar-rag/kg#Mat\u00e9ria-prima", "label": "type", "title": "type", "to": "http://phd-cesar-rag/kg#Biotecnologia"}, {"arrows": "to", "from": "http://phd-cesar-rag/kg#Mat\u00e9ria-prima", "label": "type", "title": "type", "to": "http://phd-cesar-rag/kg#EntidadeCandidata"}, {"arrows": "to", "from": "http://phd-cesar-rag/kg#Risco", "label": "status", "title": "status", "to": "http://phd-cesar-rag/meta#Aprovado"}, {"arrows": "to", "from": "http://phd-cesar-rag/kg#Processos", "label": "type", "title": "type", "to": "http://phd-cesar-rag/kg#Biotecnologia"}, {"arrows": "to", "from": "http://phd-cesar-rag/kg#Fornecedor", "label": "recebe", "title": "recebe", "to": "http://phd-cesar-rag/kg#Pagamento"}, {"arrows": "to", "from": "http://phd-cesar-rag/kg#Risco", "label": "type", "title": "type", "to": "http://phd-cesar-rag/kg#EntidadeCandidata"}, {"arrows": "to", "from": "http://www.rea.com/Agent", "label": "type", "title": "type", "to": "http://www.w3.org/2002/07/owl#Class"}, {"arrows": "to", "from": "http://phd-cesar-rag/kg#Fornecedor", "label": "fornece", "title": "fornece", "to": "http://phd-cesar-rag/kg#Mat\u00e9ria-prima"}, {"arrows": "to", "from": "http://www.e3value.com/ValueObject", "label": "type", "title": "type", "to": "http://www.w3.org/2002/07/owl#Class"}, {"arrows": "to", "from": "http://phd-cesar-rag/meta#status", "label": "type", "title": "type", "to": "http://www.w3.org/2002/07/owl#ObjectProperty"}, {"arrows": "to", "from": "http://phd-cesar-rag/kg#EntidadeCandidata", "label": "type", "title": "type", "to": "http://www.w3.org/2002/07/owl#Class"}, {"arrows": "to", "from": "http://www.omg.org/spec/VDML/supports", "label": "range", "title": "range", "to": "http://www.omg.org/spec/VDML/BusinessNetwork"}, {"arrows": "to", "from": "http://www.rea.com/Event", "label": "type", "title": "type", "to": "http://www.w3.org/2002/07/owl#Class"}, {"arrows": "to", "from": "http://phd-cesar-rag/kg#Satisfa\u00e7\u00e3o", "label": "type", "title": "type", "to": "http://phd-cesar-rag/kg#Biotecnologia"}, {"arrows": "to", "from": "http://phd-cesar-rag/kg#Satisfa\u00e7\u00e3o", "label": "type", "title": "type", "to": "http://phd-cesar-rag/kg#EntidadeCandidata"}, {"arrows": "to", "from": "http://www.rea.com/participatesIn", "label": "type", "title": "type", "to": "http://www.w3.org/2002/07/owl#ObjectProperty"}, {"arrows": "to", "from": "http://www.e3value.com/with", "label": "range", "title": "range", "to": "http://www.e3value.com/Actor"}, {"arrows": "to", "from": "http://phd-cesar-rag/kg#Servi\u00e7o", "label": "produz", "title": "produz", "to": "http://phd-cesar-rag/kg#Satisfa\u00e7\u00e3o"}, {"arrows": "to", "from": "http://phd-cesar-rag/kg#Empresa", "label": "integra", "title": "integra", "to": "http://phd-cesar-rag/kg#Processos"}, {"arrows": "to", "from": "http://www.rea.com/consumes", "label": "range", "title": "range", "to": "http://www.rea.com/Resource"}, {"arrows": "to", "from": "http://www.e3value.com/exchanges", "label": "range", "title": "range", "to": "http://www.e3value.com/ValueObject"}, {"arrows": "to", "from": "http://phd-cesar-rag/kg#Cliente", "label": "recebe", "title": "recebe", "to": "http://phd-cesar-rag/kg#Servi\u00e7o"}, {"arrows": "to", "from": "http://phd-cesar-rag/kg#Processo", "label": "mitiga", "title": "mitiga", "to": "http://phd-cesar-rag/kg#Risco"}, {"arrows": "to", "from": "http://phd-cesar-rag/kg#Pagamento", "label": "type", "title": "type", "to": "http://phd-cesar-rag/kg#Biotecnologia"}, {"arrows": "to", "from": "http://phd-cesar-rag/meta#Confirmado", "label": "type", "title": "type", "to": "http://www.w3.org/2002/07/owl#NamedIndividual"}, {"arrows": "to", "from": "http://phd-cesar-rag/kg#Cliente", "label": "consome", "title": "consome", "to": "http://phd-cesar-rag/kg#Produto"}, {"arrows": "to", "from": "http://phd-cesar-rag/kg#Pagamento", "label": "type", "title": "type", "to": "http://phd-cesar-rag/kg#EntidadeCandidata"}, {"arrows": "to", "from": "http://www.rea.com/produces", "label": "type", "title": "type", "to": "http://www.w3.org/2002/07/owl#ObjectProperty"}, {"arrows": "to", "from": "http://phd-cesar-rag/meta#Rejeitado", "label": "type", "title": "type", "to": "http://www.w3.org/2002/07/owl#NamedIndividual"}, {"arrows": "to", "from": "http://phd-cesar-rag/meta#Candidato", "label": "type", "title": "type", "to": "http://www.w3.org/2002/07/owl#NamedIndividual"}, {"arrows": "to", "from": "http://www.e3value.com/Actor", "label": "type", "title": "type", "to": "http://www.w3.org/2002/07/owl#Class"}, {"arrows": "to", "from": "http://www.rea.com/consumes", "label": "type", "title": "type", "to": "http://www.w3.org/2002/07/owl#ObjectProperty"}, {"arrows": "to", "from": "http://www.omg.org/spec/VDML/BusinessNetwork", "label": "type", "title": "type", "to": "http://www.w3.org/2002/07/owl#Class"}, {"arrows": "to", "from": "http://phd-cesar-rag/kg#Risco", "label": "type", "title": "type", "to": "http://phd-cesar-rag/kg#Biotecnologia"}, {"arrows": "to", "from": "http://phd-cesar-rag/kg#Processos", "label": "status", "title": "status", "to": "http://phd-cesar-rag/meta#Aprovado"}, {"arrows": "to", "from": "http://phd-cesar-rag/kg#Mat\u00e9ria-prima", "label": "status", "title": "status", "to": "http://phd-cesar-rag/meta#Aprovado"}, {"arrows": "to", "from": "http://www.e3value.com/with", "label": "type", "title": "type", "to": "http://www.w3.org/2002/07/owl#ObjectProperty"}, {"arrows": "to", "from": "http://phd-cesar-rag/kg#Processos", "label": "type", "title": "type", "to": "http://phd-cesar-rag/kg#EntidadeCandidata"}, {"arrows": "to", "from": "http://www.omg.org/spec/VDML/supports", "label": "domain", "title": "domain", "to": "http://www.omg.org/spec/VDML/Capability"}, {"arrows": "to", "from": "http://www.rea.com/Resource", "label": "type", "title": "type", "to": "http://www.w3.org/2002/07/owl#Class"}, {"arrows": "to", "from": "http://phd-cesar-rag/meta#Aprovado", "label": "type", "title": "type", "to": "http://www.w3.org/2002/07/owl#NamedIndividual"}, {"arrows": "to", "from": "http://phd-cesar-rag/kg#Produto", "label": "produz", "title": "produz", "to": "http://phd-cesar-rag/kg#Valor"}, {"arrows": "to", "from": "http://www.e3value.com/with", "label": "domain", "title": "domain", "to": "http://www.e3value.com/ValueExchange"}, {"arrows": "to", "from": "http://www.omg.org/spec/VDML/delivers", "label": "range", "title": "range", "to": "http://www.omg.org/spec/VDML/ValueProposition"}, {"arrows": "to", "from": "http://www.omg.org/spec/VDML/supports", "label": "type", "title": "type", "to": "http://www.w3.org/2002/07/owl#ObjectProperty"}, {"arrows": "to", "from": "http://www.rea.com/produces", "label": "range", "title": "range", "to": "http://www.rea.com/Resource"}, {"arrows": "to", "from": "http://phd-cesar-rag/kg#Satisfa\u00e7\u00e3o", "label": "status", "title": "status", "to": "http://phd-cesar-rag/meta#Aprovado"}, {"arrows": "to", "from": "http://www.e3value.com/exchanges", "label": "domain", "title": "domain", "to": "http://www.e3value.com/Actor"}, {"arrows": "to", "from": "http://www.rea.com/participatesIn", "label": "domain", "title": "domain", "to": "http://www.rea.com/Agent"}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {
+    "configure": {
+        "enabled": false
+    },
+    "edges": {
+        "color": {
+            "inherit": true
+        },
+        "smooth": {
+            "enabled": true,
+            "type": "dynamic"
+        }
+    },
+    "interaction": {
+        "dragNodes": true,
+        "hideEdgesOnDrag": false,
+        "hideNodesOnDrag": false
+    },
+    "physics": {
+        "enabled": true,
+        "stabilization": {
+            "enabled": true,
+            "fit": true,
+            "iterations": 1000,
+            "onlyDynamicEdges": false,
+            "updateInterval": 50
+        }
+    }
+};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    </body>
+</html>

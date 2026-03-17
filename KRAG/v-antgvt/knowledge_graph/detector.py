@@ -30,10 +30,19 @@ class DetectorEntidadesNovas:
         """
         # Consulta simples usando rdflib para verificar se o nó já está definido
         if self.federador.use_local_rdflib:
-            q = f"ASK {{ <{uri}> ?p ?o }}"
+            # Verifica se o nó já está definido formalmente na ontologia (tem rdf:type ou rdfs:label provindo da base)
+            # Ignora as próprias marcações temporárias de kg:EntidadeCandidata
+            q = f"""
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            PREFIX kg: <http://phd-cesar-rag/kg#>
+            ASK {{
+                <{uri}> rdf:type ?type .
+                FILTER(?type != kg:EntidadeCandidata)
+            }}
+            """
             res = self.federador.consultar(q)
             for r in res:
-                if not r: # Se não encontrou, é novo
+                if not r: # Se não encontrou tipo formal, é novo candidato
                     nome = str(uri).split('#')[-1].replace("_", " ")
                     self.federador.inserir_triplas([
                         (uri, RDF.type, KG.EntidadeCandidata),

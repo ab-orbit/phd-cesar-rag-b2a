@@ -29,17 +29,70 @@ class VisualizadorKG:
             return
 
         # Pega todas as triplas pra renderizar
+        # Apenas pega sujeitos que possuem status definido (Candidato, Aprovado, etc.)
         query = """
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+        PREFIX owl: <http://www.w3.org/2002/07/owl#>
+        PREFIX kgmeta: <http://phd-cesar-rag/meta#>
+        
         SELECT ?s ?s_label ?s_status ?p ?o ?o_label ?o_status WHERE {
+            ?s kgmeta:status ?s_status .
             ?s ?p ?o .
+            FILTER (?p NOT IN (rdf:type, rdfs:label, rdfs:comment, rdfs:domain, rdfs:range, kgmeta:status))
             OPTIONAL { ?s rdfs:label ?s_label }
-            OPTIONAL { ?s kgmeta:status ?s_status }
             OPTIONAL { ?o rdfs:label ?o_label }
             OPTIONAL { ?o kgmeta:status ?o_status }
-        } LIMIT 200
+        } LIMIT 1000
         """
 
         res = self.federador.consultar(query)
+        self._construir_rede_pyvis(net, res)
+
+        try:
+            net.save_graph(caminho_saida)
+            print(f"Grafo visual salvo em {caminho_saida}")
+        except Exception as e:
+            print(f"Falha ao salvar a visão interativa: {e}")
+
+    def gerar_html_interativo_instancias(self, caminho_saida: str = "kg_viz_instancias.html"):
+        """Gera um grafo focado EXCLUSIVAMENTE nas instâncias textuais extraídas, ignorando a ontologia base."""
+        
+        net = Network(height="750px", width="100%", bgcolor="#1a1a2e", font_color="white", directed=True)
+        
+        if not self.federador.use_local_rdflib:
+            print("Visualização apenas para base in-memory implementada.")
+            return
+
+        # Para isolar as instâncias, exigimos que TANTO o sujeito QUANTO o objeto
+        # tenham um status gerenciado (Candidato/Aprovado/etc) ou que o objeto seja literal
+        query = """
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+        PREFIX kgmeta: <http://phd-cesar-rag/meta#>
+        
+        SELECT ?s ?s_label ?s_status ?p ?o ?o_label ?o_status WHERE {
+            ?s kgmeta:status ?s_status .
+            ?s ?p ?o .
+            ?o kgmeta:status ?o_status .
+            
+            FILTER (?p NOT IN (rdf:type, rdfs:label, rdfs:comment, rdfs:domain, rdfs:range, kgmeta:status))
+            
+            OPTIONAL { ?s rdfs:label ?s_label }
+            OPTIONAL { ?o rdfs:label ?o_label }
+        } LIMIT 1000
+        """
+
+        res = self.federador.consultar(query)
+        self._construir_rede_pyvis(net, res)
+
+        try:
+            net.save_graph(caminho_saida)
+            print(f"Grafo visual de instâncias salvo em {caminho_saida}")
+        except Exception as e:
+            print(f"Falha ao salvar a visão de instâncias: {e}")
+
+    def _construir_rede_pyvis(self, net: Network, res):
         nodes_added = set()
 
         for row in res:
@@ -66,9 +119,3 @@ class VisualizadorKG:
             # Edge
             if not (hasattr(row.o, 'datatype') or hasattr(row.o, 'language')):
                 net.add_edge(s_str, o_str, title=p_str, label=p_str)
-
-        try:
-            net.save_graph(caminho_saida)
-            print(f"Grafo visual salvo em {caminho_saida}")
-        except Exception as e:
-            print(f"Falha ao salvar a visão interativa: {e}")

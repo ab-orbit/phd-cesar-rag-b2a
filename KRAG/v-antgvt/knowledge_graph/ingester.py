@@ -1,9 +1,9 @@
 from typing import List, Tuple
 from pydantic import BaseModel
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_openai import ChatOpenAI
 from rdflib import URIRef, Literal
-from .federator import KG, KGMETA, MESH, CHEBI, HPO, DRON
+from .federator import KG, KGMETA, E3VALUE, REA, VDML
 
 class Tripla(BaseModel):
     sujeito: str
