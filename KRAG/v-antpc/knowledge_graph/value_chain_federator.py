@@ -66,6 +66,14 @@ class ValueChainFederator:
             'scor': Namespace('http://www.apics.org/scor#'),
             'vc': Namespace('http://valuechain.org/ontology#'),
             'rvcs': Namespace('http://rvcs-framework.org/ontology#'),
+            # Namespaces para dados (instâncias)
+            'actor': Namespace('http://valuechain.org/data/actor/'),
+            'exchange': Namespace('http://valuechain.org/data/exchange/'),
+            'port': Namespace('http://valuechain.org/data/port/'),
+            'object': Namespace('http://valuechain.org/data/object/'),
+            'capability': Namespace('http://valuechain.org/data/capability/'),
+            'metric': Namespace('http://valuechain.org/data/metric/'),
+            # Namespaces padrão
             'rdf': RDF,
             'rdfs': RDFS,
             'owl': OWL,
