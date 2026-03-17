@@ -439,9 +439,9 @@ class ValueChainFederator:
                 OPTIONAL {{ ?capacidade rdfs:comment ?descricao }}
                 OPTIONAL {{ ?capacidade vdml:capability_level ?nivel }}
                 OPTIONAL {{ ?capacidade vdml:is_core ?isCore }}
+                {filter_core}
             }}
         }}
-        {filter_core}
         ORDER BY DESC(?isCore) ?capacidade
         """
 
