@@ -429,19 +429,17 @@ class ValueChainFederator:
         Returns:
             Lista de capacidades
         """
-        filter_core = "FILTER(?isCore = true)" if apenas_core else ""
-
-        query = f"""
+        # Buscar todas as capacidades e filtrar no Python (mais confiável que FILTER SPARQL com OPTIONAL)
+        query = """
         SELECT ?capacidade ?descricao ?nivel ?isCore
-        WHERE {{
-            GRAPH ?g {{
+        WHERE {
+            GRAPH ?g {
                 ?capacidade a vdml:Capability .
-                OPTIONAL {{ ?capacidade rdfs:comment ?descricao }}
-                OPTIONAL {{ ?capacidade vdml:capability_level ?nivel }}
-                OPTIONAL {{ ?capacidade vdml:is_core ?isCore }}
-                {filter_core}
-            }}
-        }}
+                OPTIONAL { ?capacidade rdfs:comment ?descricao }
+                OPTIONAL { ?capacidade vdml:capability_level ?nivel }
+                OPTIONAL { ?capacidade vdml:is_core ?isCore }
+            }
+        }
         ORDER BY DESC(?isCore) ?capacidade
         """
 
@@ -450,12 +448,23 @@ class ValueChainFederator:
         if results and 'results' in results:
             capacidades = []
             for binding in results['results']['bindings']:
-                capacidades.append({
+                is_core_value = binding.get('isCore', {}).get('value', 'false')
+
+                cap = {
                     'uri': binding['capacidade']['value'],
                     'descricao': binding.get('descricao', {}).get('value', 'N/A'),
                     'nivel': binding.get('nivel', {}).get('value', 'N/A'),
-                    'is_core': binding.get('isCore', {}).get('value', 'false')
-                })
+                    'is_core': is_core_value
+                }
+
+                # Filtrar apenas core se solicitado
+                if apenas_core:
+                    # Aceitar tanto o valor booleano true quanto a string "true"
+                    if is_core_value in [True, 'true', '1']:
+                        capacidades.append(cap)
+                else:
+                    capacidades.append(cap)
+
             return capacidades
 
         return []
