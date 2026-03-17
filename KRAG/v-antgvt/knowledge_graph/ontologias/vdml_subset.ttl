@@ -1,0 +1,26 @@
+@prefix vdml: <http://www.omg.org/spec/VDML/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+vdml:Capability a owl:Class ;
+    rdfs:label "Capability" ;
+    rdfs:comment "An ability that an organization, person, or system possesses." .
+
+vdml:ValueProposition a owl:Class ;
+    rdfs:label "Value Proposition" ;
+    rdfs:comment "A promise of value to be delivered and acknowledged." .
+
+vdml:BusinessNetwork a owl:Class ;
+    rdfs:label "Business Network" ;
+    rdfs:comment "A network of participating organizations." .
+
+vdml:delivers a owl:ObjectProperty ;
+    rdfs:domain vdml:Capability ;
+    rdfs:range vdml:ValueProposition ;
+    rdfs:label "delivers" .
+
+vdml:supports a owl:ObjectProperty ;
+    rdfs:domain vdml:Capability ;
+    rdfs:range vdml:BusinessNetwork ;
+    rdfs:label "supports" .

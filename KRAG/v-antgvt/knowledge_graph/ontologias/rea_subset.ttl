@@ -1,0 +1,31 @@
+@prefix rea: <http://www.rea.com/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+rea:Resource a owl:Class ;
+    rdfs:label "Economic Resource" ;
+    rdfs:comment "A thing that is scarce and has utility for economic agents." .
+
+rea:Event a owl:Class ;
+    rdfs:label "Economic Event" ;
+    rdfs:comment "A state transition that changes the quantity or value of an economic resource." .
+
+rea:Agent a owl:Class ;
+    rdfs:label "Economic Agent" ;
+    rdfs:comment "An individual or organization capable of having control over economic resources." .
+
+rea:consumes a owl:ObjectProperty ;
+    rdfs:domain rea:Event ;
+    rdfs:range rea:Resource ;
+    rdfs:label "consumes" .
+
+rea:produces a owl:ObjectProperty ;
+    rdfs:domain rea:Event ;
+    rdfs:range rea:Resource ;
+    rdfs:label "produces" .
+
+rea:participatesIn a owl:ObjectProperty ;
+    rdfs:domain rea:Agent ;
+    rdfs:range rea:Event ;
+    rdfs:label "participates in" .

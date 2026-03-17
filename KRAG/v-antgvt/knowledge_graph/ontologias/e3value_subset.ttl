@@ -1,0 +1,26 @@
+@prefix e3value: <http://www.e3value.com/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+e3value:Actor a owl:Class ;
+    rdfs:label "Actor" ;
+    rdfs:comment "An independent economic (and often legal) entity." .
+
+e3value:ValueObject a owl:Class ;
+    rdfs:label "Value Object" ;
+    rdfs:comment "A product, service, money, or even consumer experience that is of value for one or more actors." .
+
+e3value:ValueExchange a owl:Class ;
+    rdfs:label "Value Exchange" ;
+    rdfs:comment "Represents the trade of value objects between actors." .
+
+e3value:exchanges a owl:ObjectProperty ;
+    rdfs:domain e3value:Actor ;
+    rdfs:range e3value:ValueObject ;
+    rdfs:label "exchanges" .
+
+e3value:with a owl:ObjectProperty ;
+    rdfs:domain e3value:ValueExchange ;
+    rdfs:range e3value:Actor ;
+    rdfs:label "with actor" .
