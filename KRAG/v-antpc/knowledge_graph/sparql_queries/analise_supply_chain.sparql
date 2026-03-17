@@ -1,0 +1,235 @@
+# Queries SPARQL para Análise de Supply Chain
+# Baseadas em SCOR (Supply Chain Operations Reference Model)
+
+PREFIX scor: <http://www.apics.org/scor#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+# ==============================================================================
+# QUERY 1: Métricas SCOR por Atributo de Desempenho
+# ==============================================================================
+# Propósito: Agrupar KPIs por atributo estratégico (Reliability, Responsiveness, etc.)
+# Uso: Balanced scorecard de supply chain
+
+SELECT ?atributo ?nomeAtributo ?metrica ?nomeMetrica ?valorAtual ?valorAlvo ?unidade
+WHERE {
+    ?atributo a scor:PerformanceAttribute .
+    OPTIONAL { ?atributo rdfs:label ?nomeAtributo }
+
+    ?atributo scor:measured_by ?metrica .
+    ?metrica a scor:Metric .
+    OPTIONAL { ?metrica rdfs:label ?nomeMetrica }
+
+    OPTIONAL { ?metrica scor:actual_value ?valorAtual }
+    OPTIONAL { ?metrica scor:target_value ?valorAlvo }
+    OPTIONAL { ?metrica scor:metric_unit ?unidade }
+}
+ORDER BY ?atributo ?metrica
+
+# ==============================================================================
+# QUERY 2: Perfect Order Fulfillment (Pedido Perfeito)
+# ==============================================================================
+# Propósito: Calcular % de pedidos completos, no prazo, sem danos
+# Uso: Métrica de confiabilidade (Reliability)
+
+SELECT ?metric ?valorAtual ?valorAlvo
+       ((?valorAlvo - ?valorAtual) AS ?gap)
+WHERE {
+    ?metric a scor:PerfectOrderFulfillment .
+    OPTIONAL { ?metric scor:actual_value ?valorAtual }
+    OPTIONAL { ?metric scor:target_value ?valorAlvo }
+}
+
+# ==============================================================================
+# QUERY 3: Tempo de Ciclo de Atendimento (Order Fulfillment Cycle Time)
+# ==============================================================================
+# Propósito: Medir velocidade da cadeia (pedido → entrega)
+# Uso: Métrica de responsividade (Responsiveness)
+
+SELECT ?metric ?valorAtual ?valorAlvo ?unidade
+WHERE {
+    ?metric a scor:OrderFulfillmentCycleTime .
+    OPTIONAL { ?metric scor:actual_value ?valorAtual }
+    OPTIONAL { ?metric scor:target_value ?valorAlvo }
+    OPTIONAL { ?metric scor:metric_unit ?unidade }
+}
+
+# ==============================================================================
+# QUERY 4: Custo Total de Supply Chain
+# ==============================================================================
+# Propósito: Calcular custo end-to-end da cadeia
+# Uso: Métrica de custo (Cost)
+
+SELECT ?metric ?valorAtual ?valorAlvo ?unidade
+WHERE {
+    ?metric a scor:SupplyChainCost .
+    OPTIONAL { ?metric scor:actual_value ?valorAtual }
+    OPTIONAL { ?metric scor:target_value ?valorAlvo }
+    OPTIONAL { ?metric scor:metric_unit ?unidade }
+}
+
+# ==============================================================================
+# QUERY 5: Flexibilidade Upward (Capacidade de Aumentar Produção)
+# ==============================================================================
+# Propósito: Medir agilidade para crescer rapidamente
+# Uso: Métrica de agilidade (Agility)
+
+SELECT ?metric ?valorAtual ?valorAlvo ?unidade
+WHERE {
+    ?metric a scor:UpwardSupplyChainFlexibility .
+    OPTIONAL { ?metric scor:actual_value ?valorAtual }
+    OPTIONAL { ?metric scor:target_value ?valorAlvo }
+    OPTIONAL { ?metric scor:metric_unit ?unidade }
+}
+
+# ==============================================================================
+# QUERY 6: Análise de Processos SCOR (Plan, Source, Make, Deliver, Return)
+# ==============================================================================
+# Propósito: Mapear processos da cadeia de valor
+# Uso: Identificar gargalos, priorizar melhorias
+
+SELECT ?processo ?tipoProcesso ?nomProcesso ?leadTime ?custo
+WHERE {
+    ?processo a scor:SCORProcess .
+
+    # Tipo do processo (Plan, Source, Make, Deliver, Return, Enable)
+    ?processo a ?tipoProcesso .
+    FILTER(?tipoProcesso IN (scor:Plan, scor:Source, scor:Make, scor:Deliver, scor:Return, scor:Enable))
+
+    OPTIONAL { ?processo rdfs:label ?nomProcesso }
+    OPTIONAL { ?processo scor:lead_time ?leadTime }
+    OPTIONAL { ?processo scor:process_cost ?custo }
+}
+ORDER BY ?tipoProcesso ?leadTime
+
+# ==============================================================================
+# QUERY 7: Fluxo de Materiais (Source → Make → Deliver)
+# ==============================================================================
+# Propósito: Rastrear movimento de materiais pela cadeia
+# Uso: Visibilidade end-to-end, rastreabilidade
+
+SELECT ?fornecedor ?fabricante ?distribuidor ?material ?tipoMaterial
+WHERE {
+    # Fornecedor → Fabricante
+    ?fornecedor a scor:Supplier .
+    ?fornecedor scor:supplies ?material .
+
+    ?fabricante a scor:Manufacturer .
+    ?fabricante scor:sources_from ?fornecedor .
+    ?fabricante scor:produces ?produtoAcabado .
+
+    # Fabricante → Distribuidor (opcional)
+    OPTIONAL {
+        ?fabricante scor:delivers_to ?distribuidor .
+        ?distribuidor a scor:Distributor .
+    }
+
+    # Tipo de material
+    ?material a ?tipoMaterial .
+    FILTER(?tipoMaterial IN (scor:RawMaterial, scor:WorkInProcess, scor:FinishedGood))
+}
+ORDER BY ?fornecedor ?fabricante
+
+# ==============================================================================
+# QUERY 8: Análise de Estoque (Inventory Levels)
+# ==============================================================================
+# Propósito: Verificar níveis de estoque vs. estoque de segurança
+# Uso: Gestão de inventário, prevenção de rupturas
+
+SELECT ?material ?nomeMaterial ?nivelAtual ?estoqueSeguranca
+       ((?nivelAtual - ?estoqueSeguranca) AS ?buffer)
+WHERE {
+    ?material a scor:Material .
+    OPTIONAL { ?material rdfs:label ?nomeMaterial }
+
+    ?material scor:inventory_level ?nivelAtual .
+    ?material scor:safety_stock ?estoqueSeguranca .
+
+    FILTER(?nivelAtual < (?estoqueSeguranca * 1.2))  # Alerta: estoque abaixo de 120% do safety stock
+}
+ORDER BY ?buffer
+
+# ==============================================================================
+# QUERY 9: Taxa de Entrega no Prazo por Fornecedor/Fabricante
+# ==============================================================================
+# Propósito: Medir confiabilidade de parceiros
+# Uso: Avaliação de fornecedores, SLA
+
+SELECT ?entidade ?nomeEntidade ?tipoEntidade ?taxaEntregaPrazo
+WHERE {
+    {
+        ?entidade a scor:Supplier .
+        BIND("Fornecedor" AS ?tipoEntidade)
+    }
+    UNION
+    {
+        ?entidade a scor:Manufacturer .
+        BIND("Fabricante" AS ?tipoEntidade)
+    }
+    UNION
+    {
+        ?entidade a scor:Distributor .
+        BIND("Distribuidor" AS ?tipoEntidade)
+    }
+
+    OPTIONAL { ?entidade rdfs:label ?nomeEntidade }
+    OPTIONAL { ?entidade scor:on_time_delivery_rate ?taxaEntregaPrazo }
+
+    FILTER(BOUND(?taxaEntregaPrazo))
+}
+ORDER BY ?taxaEntregaPrazo
+
+# ==============================================================================
+# QUERY 10: Taxa de Defeitos por Material/Produto
+# ==============================================================================
+# Propósito: Identificar produtos com problemas de qualidade
+# Uso: Controle de qualidade, Six Sigma
+
+SELECT ?material ?nomeMaterial ?taxaDefeitos
+WHERE {
+    ?material a scor:Material .
+    OPTIONAL { ?material rdfs:label ?nomeMaterial }
+
+    ?material scor:defect_rate ?taxaDefeitos .
+
+    FILTER(?taxaDefeitos > 2.0)  # Alerta: taxa de defeitos acima de 2%
+}
+ORDER BY DESC(?taxaDefeitos)
+
+# ==============================================================================
+# QUERY 11: Breakdown de Lead Time por Processo
+# ==============================================================================
+# Propósito: Decompor tempo de ciclo total em etapas
+# Uso: Identificar gargalos, otimizar processos
+
+SELECT ?tipoProcesso ?nomeProcesso
+       (AVG(?leadTime) AS ?leadTimeMedio)
+       (SUM(?leadTime) AS ?leadTimeTotal)
+       (COUNT(?processo) AS ?numProcessos)
+WHERE {
+    ?processo a scor:SCORProcess .
+    ?processo a ?tipoProcesso .
+    FILTER(?tipoProcesso IN (scor:Plan, scor:Source, scor:Make, scor:Deliver, scor:Return))
+
+    OPTIONAL { ?processo rdfs:label ?nomeProcesso }
+    ?processo scor:lead_time ?leadTime .
+}
+GROUP BY ?tipoProcesso ?nomeProcesso
+ORDER BY DESC(?leadTimeMedio)
+
+# ==============================================================================
+# QUERY 12: Melhores Práticas (Best Practices) Aplicáveis
+# ==============================================================================
+# Propósito: Identificar práticas recomendadas para processos SCOR
+# Uso: Benchmarking, plano de melhoria contínua
+
+SELECT ?processo ?nomeProcesso ?bestPractice ?nomeBestPractice
+WHERE {
+    ?processo a scor:SCORProcess .
+    OPTIONAL { ?processo rdfs:label ?nomeProcesso }
+
+    ?bestPractice a scor:BestPractice .
+    ?bestPractice scor:applies_to ?processo .
+    OPTIONAL { ?bestPractice rdfs:label ?nomeBestPractice }
+}
+ORDER BY ?processo

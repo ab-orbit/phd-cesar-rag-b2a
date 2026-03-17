@@ -1,0 +1,226 @@
+# e3value Ontology - Value Exchanges in Business Networks
+# Based on: Gordijn & Akkermans (2003)
+# Purpose: Model reciprocity and economic viability in value networks
+
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix dc:    <http://purl.org/dc/terms/> .
+
+@prefix e3:    <http://e3value.com/ontology#> .
+
+# ============================================================================
+# ONTOLOGY METADATA
+# ============================================================================
+
+<http://e3value.com/ontology> a owl:Ontology ;
+    rdfs:label "e3value Ontology"@en ;
+    dc:title "e3value - Value Exchange Ontology for Business Networks"@en ;
+    dc:description "Ontologia para modelagem de trocas de valor recíprocas em redes de e-business. Foca no 'o quê' é trocado do ponto de vista econômico, não no 'como' processos são executados."@pt ;
+    dc:creator "Jaap Gordijn, Hans Akkermans" ;
+    owl:versionInfo "1.0" ;
+    dc:created "2026-03-16"^^xsd:date .
+
+# ============================================================================
+# CORE CLASSES
+# ============================================================================
+
+## Actor - Entidade independente com responsabilidade de lucro/perda
+e3:Actor a owl:Class ;
+    rdfs:label "Actor"@en , "Ator"@pt ;
+    rdfs:comment "Entidade econômica independente com responsabilidade de lucro e perda. Pode ser uma pessoa, organização, sistema de informação ou unidade organizacional."@pt ;
+    rdfs:subClassOf owl:Thing .
+
+## Market Segment - Conjunto de atores com mesmas necessidades
+e3:MarketSegment a owl:Class ;
+    rdfs:label "Market Segment"@en , "Segmento de Mercado"@pt ;
+    rdfs:comment "Agregação de atores que possuem mesmas necessidades, preferências e comportamentos de valor."@pt ;
+    rdfs:subClassOf e3:Actor .
+
+## Value Object - O que é trocado entre atores
+e3:ValueObject a owl:Class ;
+    rdfs:label "Value Object"@en , "Objeto de Valor"@pt ;
+    rdfs:comment "Produto, serviço, dinheiro, experiência ou dado que possui valor econômico para pelo menos um ator."@pt ;
+    rdfs:subClassOf owl:Thing .
+
+## Value Port - Ponto de conexão externa de um ator
+e3:ValuePort a owl:Class ;
+    rdfs:label "Value Port"@en , "Porta de Valor"@pt ;
+    rdfs:comment "Ponto de conexão que conecta um ator ao ambiente externo, onde objetos de valor entram ou saem."@pt ;
+    rdfs:subClassOf owl:Thing .
+
+## Value Interface - Conjunto de portas que garante reciprocidade atômica
+e3:ValueInterface a owl:Class ;
+    rdfs:label "Value Interface"@en , "Interface de Valor"@pt ;
+    rdfs:comment "Agrupa portas de valor para garantir reciprocidade: ou todos os elementos são trocados, ou nenhum é (transação atômica)."@pt ;
+    rdfs:subClassOf owl:Thing .
+
+## Value Exchange - Troca bidirecional de valor
+e3:ValueExchange a owl:Class ;
+    rdfs:label "Value Exchange"@en , "Troca de Valor"@pt ;
+    rdfs:comment "Conecta duas portas de valor de dois atores diferentes, representando uma troca recíproca."@pt ;
+    rdfs:subClassOf owl:Thing .
+
+## Value Activity - Atividade que agrega lucro
+e3:ValueActivity a owl:Class ;
+    rdfs:label "Value Activity"@en , "Atividade de Valor"@pt ;
+    rdfs:comment "Operação executada por um ator que adiciona valor econômico, consumindo ou produzindo objetos de valor."@pt ;
+    rdfs:subClassOf owl:Thing .
+
+## Value Offering - Oferta de valor de um ator
+e3:ValueOffering a owl:Class ;
+    rdfs:label "Value Offering"@en , "Oferta de Valor"@pt ;
+    rdfs:comment "Conjunto de objetos de valor oferecidos por um ator a seus parceiros de rede."@pt ;
+    rdfs:subClassOf owl:Thing .
+
+## Dependency Path - Caminho de dependência causal
+e3:DependencyPath a owl:Class ;
+    rdfs:label "Dependency Path"@en , "Caminho de Dependência"@pt ;
+    rdfs:comment "Sequência de trocas de valor que devem ocorrer para que uma necessidade do consumidor seja satisfeita."@pt ;
+    rdfs:subClassOf owl:Thing .
+
+## Start Stimulus - Estímulo que inicia fluxo de valor
+e3:StartStimulus a owl:Class ;
+    rdfs:label "Start Stimulus"@en , "Estímulo Inicial"@pt ;
+    rdfs:comment "Evento ou necessidade que desencadeia um caminho de dependência (ex: necessidade do cliente, sinal de mercado)."@pt ;
+    rdfs:subClassOf owl:Thing .
+
+## End Stimulus - Resultado final do fluxo
+e3:EndStimulus a owl:Class ;
+    rdfs:label "End Stimulus"@en , "Estímulo Final"@pt ;
+    rdfs:comment "Resultado ou satisfação alcançada ao final de um caminho de dependência."@pt ;
+    rdfs:subClassOf owl:Thing .
+
+# ============================================================================
+# OBJECT PROPERTIES
+# ============================================================================
+
+e3:has_value_port a owl:ObjectProperty ;
+    rdfs:label "has value port"@en , "tem porta de valor"@pt ;
+    rdfs:domain e3:Actor ;
+    rdfs:range e3:ValuePort .
+
+e3:has_value_interface a owl:ObjectProperty ;
+    rdfs:label "has value interface"@en , "tem interface de valor"@pt ;
+    rdfs:domain e3:Actor ;
+    rdfs:range e3:ValueInterface .
+
+e3:bundles a owl:ObjectProperty ;
+    rdfs:label "bundles"@en , "agrupa"@pt ;
+    rdfs:comment "Interface agrupa portas de valor para garantir reciprocidade atômica."@pt ;
+    rdfs:domain e3:ValueInterface ;
+    rdfs:range e3:ValuePort .
+
+e3:connects a owl:ObjectProperty ;
+    rdfs:label "connects"@en , "conecta"@pt ;
+    rdfs:domain e3:ValueExchange ;
+    rdfs:range e3:ValuePort .
+
+e3:offers a owl:ObjectProperty ;
+    rdfs:label "offers"@en , "oferece"@pt ;
+    rdfs:domain e3:ValuePort ;
+    rdfs:range e3:ValueObject .
+
+e3:requests a owl:ObjectProperty ;
+    rdfs:label "requests"@en , "solicita"@pt ;
+    rdfs:domain e3:ValuePort ;
+    rdfs:range e3:ValueObject .
+
+e3:performs a owl:ObjectProperty ;
+    rdfs:label "performs"@en , "executa"@pt ;
+    rdfs:domain e3:Actor ;
+    rdfs:range e3:ValueActivity .
+
+e3:provides a owl:ObjectProperty ;
+    rdfs:label "provides"@en , "provê"@pt ;
+    rdfs:domain e3:ValueActivity ;
+    rdfs:range e3:ValueObject .
+
+e3:consumes a owl:ObjectProperty ;
+    rdfs:label "consumes"@en , "consome"@pt ;
+    rdfs:domain e3:ValueActivity ;
+    rdfs:range e3:ValueObject .
+
+e3:triggers a owl:ObjectProperty ;
+    rdfs:label "triggers"@en , "dispara"@pt ;
+    rdfs:domain e3:StartStimulus ;
+    rdfs:range e3:DependencyPath .
+
+e3:leads_to a owl:ObjectProperty ;
+    rdfs:label "leads to"@en , "leva a"@pt ;
+    rdfs:domain e3:DependencyPath ;
+    rdfs:range e3:EndStimulus .
+
+# ============================================================================
+# DATATYPE PROPERTIES
+# ============================================================================
+
+e3:economic_value a owl:DatatypeProperty ;
+    rdfs:label "economic value"@en , "valor econômico"@pt ;
+    rdfs:comment "Valor monetário ou utilidade de um objeto de valor."@pt ;
+    rdfs:domain e3:ValueObject ;
+    rdfs:range xsd:decimal .
+
+e3:valuation a owl:DatatypeProperty ;
+    rdfs:label "valuation"@en , "valoração"@pt ;
+    rdfs:comment "Quanto um ator está disposto a pagar/receber por um objeto de valor."@pt ;
+    rdfs:domain e3:ValueObject ;
+    rdfs:range xsd:decimal .
+
+e3:direction a owl:DatatypeProperty ;
+    rdfs:label "direction"@en , "direção"@pt ;
+    rdfs:comment "Direção do fluxo de valor: 'in' (entrada) ou 'out' (saída)."@pt ;
+    rdfs:domain e3:ValuePort ;
+    rdfs:range xsd:string .
+
+e3:profitability a owl:DatatypeProperty ;
+    rdfs:label "profitability"@en , "lucratividade"@pt ;
+    rdfs:comment "Lucro líquido de um ator calculado pela folha de lucratividade."@pt ;
+    rdfs:domain e3:Actor ;
+    rdfs:range xsd:decimal .
+
+# ============================================================================
+# AXIOMS AND CONSTRAINTS
+# ============================================================================
+
+## Reciprocidade: Toda interface de valor deve ter pelo menos uma porta de entrada e uma de saída
+[]  a owl:Restriction ;
+    owl:onProperty e3:bundles ;
+    owl:minCardinality 2 ;
+    rdfs:comment "Uma interface de valor deve agrupar no mínimo 2 portas (reciprocidade)."@pt .
+
+## Atomicidade: Trocas em uma interface são atômicas
+[]  a owl:Axiom ;
+    rdfs:comment "Se uma troca falha em uma ValueInterface, todas as trocas associadas devem falhar (atomicidade)."@pt .
+
+# ============================================================================
+# INDIVIDUALS (Exemplos de Tipos Comuns de Objetos de Valor)
+# ============================================================================
+
+e3:Money a e3:ValueObject ;
+    rdfs:label "Money"@en , "Dinheiro"@pt ;
+    rdfs:comment "Objeto de valor monetário genérico usado em trocas econômicas."@pt .
+
+e3:Product a e3:ValueObject ;
+    rdfs:label "Product"@en , "Produto"@pt ;
+    rdfs:comment "Bem físico tangível trocado na rede de valor."@pt .
+
+e3:Service a e3:ValueObject ;
+    rdfs:label "Service"@en , "Serviço"@pt ;
+    rdfs:comment "Ação ou desempenho intangível oferecido em troca de valor."@pt .
+
+e3:Information a e3:ValueObject ;
+    rdfs:label "Information"@en , "Informação"@pt ;
+    rdfs:comment "Dados ou conhecimento com valor econômico."@pt .
+
+e3:Experience a e3:ValueObject ;
+    rdfs:label "Experience"@en , "Experiência"@pt ;
+    rdfs:comment "Vivência ou interação valiosa para o receptor."@pt .
+
+# ============================================================================
+# ANNOTATIONS
+# ============================================================================
+
+e3:Actor rdfs:seeAlso <https://en.wikipedia.org/wiki/E3_value> ;
+    dc:source "Gordijn, J., & Akkermans, H. (2003). Value-based requirements engineering: exploring innovative e-commerce ideas."@en .

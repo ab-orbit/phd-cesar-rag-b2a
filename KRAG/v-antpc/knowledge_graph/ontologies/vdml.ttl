@@ -1,0 +1,359 @@
+# VDML Ontology - Value Delivery Modeling Language
+# Based on: OMG VDML 1.0 Specification
+# Purpose: Model business capabilities, value propositions, and delivery methods
+
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix dc:    <http://purl.org/dc/terms/> .
+
+@prefix vdml:  <http://www.omg.org/spec/VDML/> .
+
+# ============================================================================
+# ONTOLOGY METADATA
+# ============================================================================
+
+<http://www.omg.org/spec/VDML/> a owl:Ontology ;
+    rdfs:label "VDML Ontology"@en ;
+    dc:title "VDML - Value Delivery Modeling Language"@en ;
+    dc:description "Padrão OMG para modelagem de redes de valor empresariais. Integra estratégia, capacidades, processos e métricas em modelo unificado."@pt ;
+    dc:creator "Object Management Group (OMG)" ;
+    owl:versionInfo "1.0" ;
+    dc:created "2026-03-16"^^xsd:date .
+
+# ============================================================================
+# CORE CLASSES - VALUE PROPOSITION NETWORK
+# ============================================================================
+
+## Value Proposition - Proposta de valor de um negócio
+vdml:ValueProposition a owl:Class ;
+    rdfs:label "Value Proposition"@en , "Proposta de Valor"@pt ;
+    rdfs:comment "Declaração do valor que uma organização oferece a seus stakeholders. Define 'o que' é entregue, não 'como'."@pt ;
+    rdfs:subClassOf owl:Thing .
+
+## Value Proposition Component - Componente atômico de valor
+vdml:ValuePropositionComponent a owl:Class ;
+    rdfs:label "Value Proposition Component"@en , "Componente de Proposta de Valor"@pt ;
+    rdfs:comment "Elemento específico de valor oferecido (ex: qualidade, velocidade, preço, experiência)."@pt ;
+    rdfs:subClassOf owl:Thing .
+
+## Value Add - Incremento de valor
+vdml:ValueAdd a owl:Class ;
+    rdfs:label "Value Add"@en , "Agregação de Valor"@pt ;
+    rdfs:comment "Transformação que aumenta o valor percebido por um stakeholder."@pt ;
+    rdfs:subClassOf owl:Thing .
+
+## Stakeholder - Parte interessada
+vdml:Stakeholder a owl:Class ;
+    rdfs:label "Stakeholder"@en , "Parte Interessada"@pt ;
+    rdfs:comment "Indivíduo, grupo ou organização que tem interesse no desempenho de valor de um negócio."@pt ;
+    rdfs:subClassOf owl:Thing .
+
+# ============================================================================
+# CORE CLASSES - CAPABILITY
+# ============================================================================
+
+## Capability - Capacidade organizacional
+vdml:Capability a owl:Class ;
+    rdfs:label "Capability"@en , "Capacidade"@pt ;
+    rdfs:comment "Habilidade de uma organização para realizar um tipo particular de trabalho e entregar valor desejado. Abstração independente de 'como' é executada."@pt ;
+    rdfs:subClassOf owl:Thing .
+
+## Capability Offer - Oferta de capacidade
+vdml:CapabilityOffer a owl:Class ;
+    rdfs:label "Capability Offer"@en , "Oferta de Capacidade"@pt ;
+    rdfs:comment "Capacidade disponibilizada como serviço para outras partes da organização ou parceiros externos."@pt ;
+    rdfs:subClassOf owl:Thing .
+
+## Capability Method - Método de entrega
+vdml:CapabilityMethod a owl:Class ;
+    rdfs:label "Capability Method"@en , "Método de Capacidade"@pt ;
+    rdfs:comment "Abordagem específica para entregar uma capacidade. Ponte entre abstração estratégica e processos operacionais."@pt ;
+    rdfs:subClassOf owl:Thing .
+
+## Practice - Prática organizacional
+vdml:Practice a owl:Class ;
+    rdfs:label "Practice"@en , "Prática"@pt ;
+    rdfs:comment "Conjunto de conhecimentos, técnicas e habilidades aplicadas em um método de capacidade."@pt ;
+    rdfs:subClassOf owl:Thing .
+
+# ============================================================================
+# CORE CLASSES - ACTIVITY & COLLABORATION
+# ============================================================================
+
+## Activity - Atividade de negócio
+vdml:Activity a owl:Class ;
+    rdfs:label "Activity"@en , "Atividade"@pt ;
+    rdfs:comment "Unidade de trabalho executada para entregar valor. Pode ser decomposta em sub-atividades."@pt ;
+    rdfs:subClassOf owl:Thing .
+
+## Business Network - Rede colaborativa
+vdml:BusinessNetwork a owl:Class ;
+    rdfs:label "Business Network"@en , "Rede de Negócios"@pt ;
+    rdfs:comment "Conjunto de participantes colaborando para entregar valor coletivo."@pt ;
+    rdfs:subClassOf owl:Thing .
+
+## Collaboration - Colaboração estruturada
+vdml:Collaboration a owl:Class ;
+    rdfs:label "Collaboration"@en , "Colaboração"@pt ;
+    rdfs:comment "Coordenação de atividades entre múltiplos participantes para atingir objetivo comum."@pt ;
+    rdfs:subClassOf owl:Thing .
+
+## Role - Papel organizacional
+vdml:Role a owl:Class ;
+    rdfs:label "Role"@en , "Papel"@pt ;
+    rdfs:comment "Conjunto de responsabilidades e autoridades em uma atividade ou colaboração."@pt ;
+    rdfs:subClassOf owl:Thing .
+
+# ============================================================================
+# CORE CLASSES - MEASUREMENT
+# ============================================================================
+
+## Measurable Element - Elemento mensurável
+vdml:MeasurableElement a owl:Class ;
+    rdfs:label "Measurable Element"@en , "Elemento Mensurável"@pt ;
+    rdfs:comment "Qualquer entidade que pode ser medida para avaliar desempenho."@pt ;
+    rdfs:subClassOf owl:Thing .
+
+## Measurement - Medição concreta
+vdml:Measurement a owl:Class ;
+    rdfs:label "Measurement"@en , "Medição"@pt ;
+    rdfs:comment "Observação quantitativa de um elemento em um momento específico."@pt ;
+    rdfs:subClassOf owl:Thing .
+
+## Performance Objective - Objetivo de desempenho
+vdml:PerformanceObjective a owl:Class ;
+    rdfs:label "Performance Objective"@en , "Objetivo de Desempenho"@pt ;
+    rdfs:comment "Meta desejada para uma medição (ex: reduzir custo em 15%, aumentar satisfação para 4.5/5)."@pt ;
+    rdfs:subClassOf owl:Thing .
+
+# ============================================================================
+# CORE CLASSES - RESOURCES
+# ============================================================================
+
+## Resource - Recurso organizacional
+vdml:Resource a owl:Class ;
+    rdfs:label "Resource"@en , "Recurso"@pt ;
+    rdfs:comment "Ativo tangível ou intangível usado para executar atividades e entregar valor."@pt ;
+    rdfs:subClassOf owl:Thing .
+
+## Resource Use - Uso de recurso
+vdml:ResourceUse a owl:Class ;
+    rdfs:label "Resource Use"@en , "Uso de Recurso"@pt ;
+    rdfs:comment "Associação de recurso a uma atividade, especificando como e quanto é usado."@pt ;
+    rdfs:subClassOf owl:Thing .
+
+## Store - Repositório de recursos
+vdml:Store a owl:Class ;
+    rdfs:label "Store"@en , "Armazém"@pt ;
+    rdfs:comment "Local físico ou lógico onde recursos são mantidos."@pt ;
+    rdfs:subClassOf owl:Thing .
+
+# ============================================================================
+# OBJECT PROPERTIES - VALUE PROPOSITION
+# ============================================================================
+
+vdml:has_component a owl:ObjectProperty ;
+    rdfs:label "has component"@en , "tem componente"@pt ;
+    rdfs:domain vdml:ValueProposition ;
+    rdfs:range vdml:ValuePropositionComponent .
+
+vdml:recipient a owl:ObjectProperty ;
+    rdfs:label "recipient"@en , "destinatário"@pt ;
+    rdfs:comment "Stakeholder que recebe a proposta de valor."@pt ;
+    rdfs:domain vdml:ValueProposition ;
+    rdfs:range vdml:Stakeholder .
+
+vdml:provider a owl:ObjectProperty ;
+    rdfs:label "provider"@en , "provedor"@pt ;
+    rdfs:comment "Organização que entrega a proposta de valor."@pt ;
+    rdfs:domain vdml:ValueProposition ;
+    rdfs:range vdml:BusinessNetwork .
+
+# ============================================================================
+# OBJECT PROPERTIES - CAPABILITY
+# ============================================================================
+
+vdml:delivers a owl:ObjectProperty ;
+    rdfs:label "delivers"@en , "entrega"@pt ;
+    rdfs:comment "Capacidade entrega uma proposta de valor."@pt ;
+    rdfs:domain vdml:Capability ;
+    rdfs:range vdml:ValueProposition .
+
+vdml:supports a owl:ObjectProperty ;
+    rdfs:label "supports"@en , "suporta"@pt ;
+    rdfs:comment "Capacidade suporta outra capacidade de nível superior."@pt ;
+    rdfs:domain vdml:Capability ;
+    rdfs:range vdml:Capability .
+
+vdml:realized_by a owl:ObjectProperty ;
+    rdfs:label "realized by"@en , "realizada por"@pt ;
+    rdfs:comment "Capacidade é realizada por um ou mais métodos."@pt ;
+    rdfs:domain vdml:Capability ;
+    rdfs:range vdml:CapabilityMethod .
+
+vdml:uses_practice a owl:ObjectProperty ;
+    rdfs:label "uses practice"@en , "usa prática"@pt ;
+    rdfs:domain vdml:CapabilityMethod ;
+    rdfs:range vdml:Practice .
+
+vdml:performs a owl:ObjectProperty ;
+    rdfs:label "performs"@en , "executa"@pt ;
+    rdfs:comment "Método executa atividades específicas."@pt ;
+    rdfs:domain vdml:CapabilityMethod ;
+    rdfs:range vdml:Activity .
+
+# ============================================================================
+# OBJECT PROPERTIES - ACTIVITY & COLLABORATION
+# ============================================================================
+
+vdml:decomposes_to a owl:ObjectProperty ;
+    rdfs:label "decomposes to"@en , "decompõe em"@pt ;
+    rdfs:comment "Atividade é decomposta em sub-atividades."@pt ;
+    rdfs:domain vdml:Activity ;
+    rdfs:range vdml:Activity .
+
+vdml:assigned_to a owl:ObjectProperty ;
+    rdfs:label "assigned to"@en , "atribuída a"@pt ;
+    rdfs:comment "Atividade é atribuída a um papel organizacional."@pt ;
+    rdfs:domain vdml:Activity ;
+    rdfs:range vdml:Role .
+
+vdml:part_of_network a owl:ObjectProperty ;
+    rdfs:label "part of network"@en , "parte da rede"@pt ;
+    rdfs:domain vdml:Collaboration ;
+    rdfs:range vdml:BusinessNetwork .
+
+vdml:involves a owl:ObjectProperty ;
+    rdfs:label "involves"@en , "envolve"@pt ;
+    rdfs:comment "Colaboração envolve múltiplos papéis."@pt ;
+    rdfs:domain vdml:Collaboration ;
+    rdfs:range vdml:Role .
+
+# ============================================================================
+# OBJECT PROPERTIES - MEASUREMENT
+# ============================================================================
+
+vdml:measured_by a owl:ObjectProperty ;
+    rdfs:label "measured by"@en , "medida por"@pt ;
+    rdfs:domain vdml:MeasurableElement ;
+    rdfs:range vdml:Measurement .
+
+vdml:has_objective a owl:ObjectProperty ;
+    rdfs:label "has objective"@en , "tem objetivo"@pt ;
+    rdfs:domain vdml:MeasurableElement ;
+    rdfs:range vdml:PerformanceObjective .
+
+# ============================================================================
+# OBJECT PROPERTIES - RESOURCES
+# ============================================================================
+
+vdml:uses_resource a owl:ObjectProperty ;
+    rdfs:label "uses resource"@en , "usa recurso"@pt ;
+    rdfs:domain vdml:Activity ;
+    rdfs:range vdml:ResourceUse .
+
+vdml:resource_used a owl:ObjectProperty ;
+    rdfs:label "resource used"@en , "recurso usado"@pt ;
+    rdfs:domain vdml:ResourceUse ;
+    rdfs:range vdml:Resource .
+
+vdml:stored_in a owl:ObjectProperty ;
+    rdfs:label "stored in"@en , "armazenado em"@pt ;
+    rdfs:domain vdml:Resource ;
+    rdfs:range vdml:Store .
+
+# ============================================================================
+# DATATYPE PROPERTIES
+# ============================================================================
+
+vdml:capability_level a owl:DatatypeProperty ;
+    rdfs:label "capability level"@en , "nível de capacidade"@pt ;
+    rdfs:comment "Nível de maturidade de uma capacidade (1-5, CMMI style)."@pt ;
+    rdfs:domain vdml:Capability ;
+    rdfs:range xsd:integer .
+
+vdml:value_proposition_description a owl:DatatypeProperty ;
+    rdfs:label "value proposition description"@en , "descrição da proposta"@pt ;
+    rdfs:domain vdml:ValueProposition ;
+    rdfs:range xsd:string .
+
+vdml:measurement_value a owl:DatatypeProperty ;
+    rdfs:label "measurement value"@en , "valor medido"@pt ;
+    rdfs:domain vdml:Measurement ;
+    rdfs:range xsd:decimal .
+
+vdml:measurement_unit a owl:DatatypeProperty ;
+    rdfs:label "measurement unit"@en , "unidade de medida"@pt ;
+    rdfs:domain vdml:Measurement ;
+    rdfs:range xsd:string .
+
+vdml:target_value a owl:DatatypeProperty ;
+    rdfs:label "target value"@en , "valor alvo"@pt ;
+    rdfs:comment "Meta desejada para um objetivo de desempenho."@pt ;
+    rdfs:domain vdml:PerformanceObjective ;
+    rdfs:range xsd:decimal .
+
+vdml:cost a owl:DatatypeProperty ;
+    rdfs:label "cost"@en , "custo"@pt ;
+    rdfs:comment "Custo monetário de executar uma atividade ou usar um recurso."@pt ;
+    rdfs:range xsd:decimal .
+
+vdml:duration a owl:DatatypeProperty ;
+    rdfs:label "duration"@en , "duração"@pt ;
+    rdfs:comment "Tempo necessário para executar uma atividade."@pt ;
+    rdfs:domain vdml:Activity ;
+    rdfs:range xsd:duration .
+
+vdml:resource_quantity a owl:DatatypeProperty ;
+    rdfs:label "resource quantity"@en , "quantidade de recurso"@pt ;
+    rdfs:domain vdml:ResourceUse ;
+    rdfs:range xsd:decimal .
+
+vdml:is_core a owl:DatatypeProperty ;
+    rdfs:label "is core"@en , "é central"@pt ;
+    rdfs:comment "Indica se capacidade é core (diferencial competitivo) ou support (habilitadora)."@pt ;
+    rdfs:domain vdml:Capability ;
+    rdfs:range xsd:boolean .
+
+# ============================================================================
+# INDIVIDUALS (Exemplos de Medições Comuns)
+# ============================================================================
+
+## Dimensões de Valor Comuns
+
+vdml:QualityDimension a vdml:ValuePropositionComponent ;
+    rdfs:label "Quality Dimension"@en , "Dimensão de Qualidade"@pt ;
+    rdfs:comment "Valor derivado da qualidade superior do produto/serviço."@pt .
+
+vdml:TimeDimension a vdml:ValuePropositionComponent ;
+    rdfs:label "Time Dimension"@en , "Dimensão de Tempo"@pt ;
+    rdfs:comment "Valor derivado da velocidade de entrega ou tempo de resposta."@pt .
+
+vdml:CostDimension a vdml:ValuePropositionComponent ;
+    rdfs:label "Cost Dimension"@en , "Dimensão de Custo"@pt ;
+    rdfs:comment "Valor derivado de preço competitivo ou economia de custos."@pt .
+
+vdml:ExperienceDimension a vdml:ValuePropositionComponent ;
+    rdfs:label "Experience Dimension"@en , "Dimensão de Experiência"@pt ;
+    rdfs:comment "Valor derivado da experiência do usuário e usabilidade."@pt .
+
+## Tipos de Capacidade
+
+vdml:CoreCapability a vdml:Capability ;
+    rdfs:label "Core Capability"@en , "Capacidade Central"@pt ;
+    rdfs:comment "Capacidade que cria diferenciação competitiva."@pt ;
+    vdml:is_core "true"^^xsd:boolean .
+
+vdml:SupportCapability a vdml:Capability ;
+    rdfs:label "Support Capability"@en , "Capacidade de Suporte"@pt ;
+    rdfs:comment "Capacidade necessária mas não diferenciadora."@pt ;
+    vdml:is_core "false"^^xsd:boolean .
+
+# ============================================================================
+# ANNOTATIONS
+# ============================================================================
+
+vdml:Capability rdfs:seeAlso <https://www.omg.org/spec/VDML/> ;
+    dc:source "OMG Value Delivery Modeling Language (VDML) Version 1.0"@en .

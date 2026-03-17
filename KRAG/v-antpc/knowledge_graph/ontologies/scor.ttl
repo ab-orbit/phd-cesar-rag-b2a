@@ -1,0 +1,339 @@
+# SCOR Ontology - Supply Chain Operations Reference Model
+# Based on: APICS SCOR Model (Supply Chain Council)
+# Purpose: Standardize supply chain processes, metrics, and best practices
+
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix dc:    <http://purl.org/dc/terms/> .
+
+@prefix scor:  <http://www.apics.org/scor#> .
+
+# ============================================================================
+# ONTOLOGY METADATA
+# ============================================================================
+
+<http://www.apics.org/scor#> a owl:Ontology ;
+    rdfs:label "SCOR Ontology"@en ;
+    dc:title "SCOR - Supply Chain Operations Reference Model"@en ;
+    dc:description "Modelo de referência para padronização de processos de supply chain. Define 6 processos principais: Plan, Source, Make, Deliver, Return, Enable."@pt ;
+    dc:creator "APICS Supply Chain Council" ;
+    owl:versionInfo "13.0" ;
+    dc:created "2026-03-16"^^xsd:date .
+
+# ============================================================================
+# CORE CLASSES - PROCESS TYPES (SCOR Level 1)
+# ============================================================================
+
+## SCOR Process - Processo genérico
+scor:SCORProcess a owl:Class ;
+    rdfs:label "SCOR Process"@en , "Processo SCOR"@pt ;
+    rdfs:comment "Processo de supply chain no framework SCOR."@pt ;
+    rdfs:subClassOf owl:Thing .
+
+## Plan - Planejamento da cadeia
+scor:Plan a owl:Class ;
+    rdfs:label "Plan"@en , "Planejar"@pt ;
+    rdfs:comment "Processos de balancear demanda e suprimento para determinar o melhor curso de ação. Inclui S&OP, planejamento de produção, forecast."@pt ;
+    rdfs:subClassOf scor:SCORProcess .
+
+## Source - Aquisição de materiais
+scor:Source a owl:Class ;
+    rdfs:label "Source"@en , "Abastecer"@pt ;
+    rdfs:comment "Processos de procurement e recebimento de matérias-primas, componentes e serviços. Inclui supplier selection, purchasing, receiving."@pt ;
+    rdfs:subClassOf scor:SCORProcess .
+
+## Make - Manufatura e transformação
+scor:Make a owl:Class ;
+    rdfs:label "Make"@en , "Produzir"@pt ;
+    rdfs:comment "Processos de transformação de materiais em produtos acabados. Inclui fabricação, montagem, teste, embalagem, staging."@pt ;
+    rdfs:subClassOf scor:SCORProcess .
+
+## Deliver - Entrega e distribuição
+scor:Deliver a owl:Class ;
+    rdfs:label "Deliver"@en , "Entregar"@pt ;
+    rdfs:comment "Processos de atendimento de pedidos e entrega de produtos acabados. Inclui order management, warehouse management, transporte."@pt ;
+    rdfs:subClassOf scor:SCORProcess .
+
+## Return - Logística reversa
+scor:Return a owl:Class ;
+    rdfs:label "Return"@en , "Retornar"@pt ;
+    rdfs:comment "Processos de devolução de produtos defeituosos, excessos ou recicláveis. Inclui returns authorization, reverse logistics, disposal."@pt ;
+    rdfs:subClassOf scor:SCORProcess .
+
+## Enable - Processos habilitadores
+scor:Enable a owl:Class ;
+    rdfs:label "Enable"@en , "Habilitar"@pt ;
+    rdfs:comment "Processos de suporte e governança que viabilizam os 5 processos principais. Inclui compliance, data management, risk management."@pt ;
+    rdfs:subClassOf scor:SCORProcess .
+
+# ============================================================================
+# PROCESS CATEGORIES (SCOR Level 2)
+# ============================================================================
+
+## Process Category - Categoria de execução
+scor:ProcessCategory a owl:Class ;
+    rdfs:label "Process Category"@en , "Categoria de Processo"@pt ;
+    rdfs:comment "Categorias de processos SCOR nível 2: Planning, Execution, Enable."@pt ;
+    rdfs:subClassOf owl:Thing .
+
+scor:PlanningProcess a owl:Class ;
+    rdfs:label "Planning Process"@en , "Processo de Planejamento"@pt ;
+    rdfs:subClassOf scor:ProcessCategory .
+
+scor:ExecutionProcess a owl:Class ;
+    rdfs:label "Execution Process"@en , "Processo de Execução"@pt ;
+    rdfs:subClassOf scor:ProcessCategory .
+
+scor:EnablingProcess a owl:Class ;
+    rdfs:label "Enabling Process"@en , "Processo Habilitador"@pt ;
+    rdfs:subClassOf scor:ProcessCategory .
+
+# ============================================================================
+# PERFORMANCE ATTRIBUTES
+# ============================================================================
+
+## Performance Attribute - Atributo de desempenho
+scor:PerformanceAttribute a owl:Class ;
+    rdfs:label "Performance Attribute"@en , "Atributo de Desempenho"@pt ;
+    rdfs:comment "5 atributos estratégicos do SCOR: Reliability, Responsiveness, Agility, Cost, Asset Management."@pt ;
+    rdfs:subClassOf owl:Thing .
+
+scor:Reliability a scor:PerformanceAttribute ;
+    rdfs:label "Reliability"@en , "Confiabilidade"@pt ;
+    rdfs:comment "Capacidade de entregar o produto correto, no lugar correto, no momento correto, na condição correta, na embalagem correta."@pt .
+
+scor:Responsiveness a scor:PerformanceAttribute ;
+    rdfs:label "Responsiveness"@en , "Responsividade"@pt ;
+    rdfs:comment "Velocidade com que a cadeia entrega produtos aos clientes (order cycle time)."@pt .
+
+scor:Agility a scor:PerformanceAttribute ;
+    rdfs:label "Agility"@en , "Agilidade"@pt ;
+    rdfs:comment "Capacidade de responder rapidamente a mudanças de mercado (flexibilidade e adaptabilidade)."@pt .
+
+scor:Cost a scor:PerformanceAttribute ;
+    rdfs:label "Cost"@en , "Custo"@pt ;
+    rdfs:comment "Custo total de operar a cadeia de suprimentos (COGS + logistics costs + overhead)."@pt .
+
+scor:AssetManagement a scor:PerformanceAttribute ;
+    rdfs:label "Asset Management"@en , "Gestão de Ativos"@pt ;
+    rdfs:comment "Eficiência no uso de ativos para suportar satisfação de demanda (inventory turns, cash-to-cash cycle)."@pt .
+
+# ============================================================================
+# METRICS (KPIs)
+# ============================================================================
+
+## Metric - Métrica de desempenho
+scor:Metric a owl:Class ;
+    rdfs:label "Metric"@en , "Métrica"@pt ;
+    rdfs:comment "KPI específico para medir desempenho de processo SCOR."@pt ;
+    rdfs:subClassOf owl:Thing .
+
+## Level 1 Metrics (Strategic)
+
+scor:PerfectOrderFulfillment a scor:Metric ;
+    rdfs:label "Perfect Order Fulfillment"@en , "Pedido Perfeito"@pt ;
+    rdfs:comment "% de pedidos entregues completos, no prazo, sem danos, com documentação correta (Reliability)."@pt .
+
+scor:OrderFulfillmentCycleTime a scor:Metric ;
+    rdfs:label "Order Fulfillment Cycle Time"@en , "Tempo de Ciclo do Pedido"@pt ;
+    rdfs:comment "Tempo médio desde recebimento do pedido até entrega ao cliente (Responsiveness)."@pt .
+
+scor:SupplyChainCost a scor:Metric ;
+    rdfs:label "Supply Chain Cost"@en , "Custo da Cadeia"@pt ;
+    rdfs:comment "Custo total para operar a cadeia como % da receita (Cost)."@pt .
+
+scor:CashToCashCycleTime a scor:Metric ;
+    rdfs:label "Cash-to-Cash Cycle Time"@en , "Ciclo Caixa-a-Caixa"@pt ;
+    rdfs:comment "Dias entre pagamento a fornecedores e recebimento de clientes (Asset Management)."@pt .
+
+scor:UpwardSupplyChainFlexibility a scor:Metric ;
+    rdfs:label "Upward Supply Chain Flexibility"@en , "Flexibilidade para Aumento"@pt ;
+    rdfs:comment "Capacidade de aumentar produção em % sem custo adicional (Agility)."@pt .
+
+# ============================================================================
+# SUPPLY CHAIN ENTITIES
+# ============================================================================
+
+## Supplier - Fornecedor
+scor:Supplier a owl:Class ;
+    rdfs:label "Supplier"@en , "Fornecedor"@pt ;
+    rdfs:comment "Entidade que fornece materiais, componentes ou serviços."@pt ;
+    rdfs:subClassOf owl:Thing .
+
+## Manufacturer - Fabricante
+scor:Manufacturer a owl:Class ;
+    rdfs:label "Manufacturer"@en , "Fabricante"@pt ;
+    rdfs:comment "Entidade que transforma materiais em produtos acabados."@pt ;
+    rdfs:subClassOf owl:Thing .
+
+## Distributor - Distribuidor
+scor:Distributor a owl:Class ;
+    rdfs:label "Distributor"@en , "Distribuidor"@pt ;
+    rdfs:comment "Entidade que armazena e distribui produtos aos clientes finais ou varejistas."@pt ;
+    rdfs:subClassOf owl:Thing .
+
+## Customer - Cliente
+scor:Customer a owl:Class ;
+    rdfs:label "Customer"@en , "Cliente"@pt ;
+    rdfs:comment "Entidade que consome o produto ou serviço final."@pt ;
+    rdfs:subClassOf owl:Thing .
+
+# ============================================================================
+# MATERIALS & PRODUCTS
+# ============================================================================
+
+## Material - Material
+scor:Material a owl:Class ;
+    rdfs:label "Material"@en , "Material"@pt ;
+    rdfs:comment "Matéria-prima, componente ou produto em qualquer estágio da cadeia."@pt ;
+    rdfs:subClassOf owl:Thing .
+
+scor:RawMaterial a owl:Class ;
+    rdfs:label "Raw Material"@en , "Matéria-Prima"@pt ;
+    rdfs:subClassOf scor:Material .
+
+scor:WorkInProcess a owl:Class ;
+    rdfs:label "Work in Process"@en , "Produto em Processo"@pt ;
+    rdfs:subClassOf scor:Material .
+
+scor:FinishedGood a owl:Class ;
+    rdfs:label "Finished Good"@en , "Produto Acabado"@pt ;
+    rdfs:subClassOf scor:Material .
+
+# ============================================================================
+# OBJECT PROPERTIES
+# ============================================================================
+
+## Process Relationships
+
+scor:subprocess_of a owl:ObjectProperty ;
+    rdfs:label "subprocess of"@en , "subprocesso de"@pt ;
+    rdfs:comment "Processo SCOR nível 3 é subprocesso de nível 2."@pt ;
+    rdfs:domain scor:SCORProcess ;
+    rdfs:range scor:SCORProcess .
+
+scor:precedes a owl:ObjectProperty ;
+    rdfs:label "precedes"@en , "precede"@pt ;
+    rdfs:comment "Ordem de execução entre processos."@pt ;
+    rdfs:domain scor:SCORProcess ;
+    rdfs:range scor:SCORProcess .
+
+scor:triggers a owl:ObjectProperty ;
+    rdfs:label "triggers"@en , "dispara"@pt ;
+    rdfs:comment "Processo A dispara processo B."@pt ;
+    rdfs:domain scor:SCORProcess ;
+    rdfs:range scor:SCORProcess .
+
+## Supply Chain Flow
+
+scor:sources_from a owl:ObjectProperty ;
+    rdfs:label "sources from"@en , "abastece de"@pt ;
+    rdfs:domain scor:Manufacturer ;
+    rdfs:range scor:Supplier .
+
+scor:delivers_to a owl:ObjectProperty ;
+    rdfs:label "delivers to"@en , "entrega para"@pt ;
+    rdfs:domain scor:Manufacturer ;
+    rdfs:range scor:Customer .
+
+scor:supplies a owl:ObjectProperty ;
+    rdfs:label "supplies"@en , "fornece"@pt ;
+    rdfs:domain scor:Supplier ;
+    rdfs:range scor:Material .
+
+scor:produces a owl:ObjectProperty ;
+    rdfs:label "produces"@en , "produz"@pt ;
+    rdfs:domain scor:Manufacturer ;
+    rdfs:range scor:FinishedGood .
+
+## Metrics
+
+scor:measured_by a owl:ObjectProperty ;
+    rdfs:label "measured by"@en , "medida por"@pt ;
+    rdfs:comment "Processo ou atributo é medido por métrica específica."@pt ;
+    rdfs:domain scor:PerformanceAttribute ;
+    rdfs:range scor:Metric .
+
+scor:has_target a owl:ObjectProperty ;
+    rdfs:label "has target"@en , "tem meta"@pt ;
+    rdfs:domain scor:Metric ;
+    rdfs:range scor:PerformanceAttribute .
+
+# ============================================================================
+# DATATYPE PROPERTIES
+# ============================================================================
+
+scor:metric_value a owl:DatatypeProperty ;
+    rdfs:label "metric value"@en , "valor da métrica"@pt ;
+    rdfs:domain scor:Metric ;
+    rdfs:range xsd:decimal .
+
+scor:metric_unit a owl:DatatypeProperty ;
+    rdfs:label "metric unit"@en , "unidade da métrica"@pt ;
+    rdfs:domain scor:Metric ;
+    rdfs:range xsd:string .
+
+scor:target_value a owl:DatatypeProperty ;
+    rdfs:label "target value"@en , "valor alvo"@pt ;
+    rdfs:domain scor:Metric ;
+    rdfs:range xsd:decimal .
+
+scor:actual_value a owl:DatatypeProperty ;
+    rdfs:label "actual value"@en , "valor real"@pt ;
+    rdfs:domain scor:Metric ;
+    rdfs:range xsd:decimal .
+
+scor:lead_time a owl:DatatypeProperty ;
+    rdfs:label "lead time"@en , "tempo de lead"@pt ;
+    rdfs:comment "Tempo em dias entre início e fim de um processo."@pt ;
+    rdfs:domain scor:SCORProcess ;
+    rdfs:range xsd:decimal .
+
+scor:process_cost a owl:DatatypeProperty ;
+    rdfs:label "process cost"@en , "custo do processo"@pt ;
+    rdfs:domain scor:SCORProcess ;
+    rdfs:range xsd:decimal .
+
+scor:inventory_level a owl:DatatypeProperty ;
+    rdfs:label "inventory level"@en , "nível de estoque"@pt ;
+    rdfs:domain scor:Material ;
+    rdfs:range xsd:decimal .
+
+scor:safety_stock a owl:DatatypeProperty ;
+    rdfs:label "safety stock"@en , "estoque de segurança"@pt ;
+    rdfs:domain scor:Material ;
+    rdfs:range xsd:decimal .
+
+scor:on_time_delivery_rate a owl:DatatypeProperty ;
+    rdfs:label "on-time delivery rate"@en , "taxa de entrega no prazo"@pt ;
+    rdfs:comment "% de entregas realizadas no prazo prometido."@pt ;
+    rdfs:range xsd:decimal .
+
+scor:defect_rate a owl:DatatypeProperty ;
+    rdfs:label "defect rate"@en , "taxa de defeitos"@pt ;
+    rdfs:comment "% de produtos com defeito."@pt ;
+    rdfs:range xsd:decimal .
+
+# ============================================================================
+# BEST PRACTICES
+# ============================================================================
+
+## Best Practice - Prática recomendada
+scor:BestPractice a owl:Class ;
+    rdfs:label "Best Practice"@en , "Melhor Prática"@pt ;
+    rdfs:comment "Prática comprovada que leva a desempenho superior em processos SCOR."@pt ;
+    rdfs:subClassOf owl:Thing .
+
+scor:applies_to a owl:ObjectProperty ;
+    rdfs:label "applies to"@en , "aplica-se a"@pt ;
+    rdfs:domain scor:BestPractice ;
+    rdfs:range scor:SCORProcess .
+
+# ============================================================================
+# ANNOTATIONS
+# ============================================================================
+
+scor:SCORProcess rdfs:seeAlso <https://www.ascm.org/corporate-transformation/standards-certification/> ;
+    dc:source "APICS Supply Chain Operations Reference Model (SCOR) Version 13.0"@en .

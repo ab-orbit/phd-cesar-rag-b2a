@@ -1,0 +1,191 @@
+# Queries SPARQL para Análise de Capacidades Estratégicas
+# Baseadas em VDML (Value Delivery Modeling Language)
+
+PREFIX vdml: <http://www.omg.org/spec/VDML/>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+# ==============================================================================
+# QUERY 1: Mapa de Capacidades (Core vs Support)
+# ==============================================================================
+# Propósito: Identificar capacidades centrais (diferenciadoras) vs. habilitadoras
+# Uso: Foco estratégico, decisões de terceirização
+
+SELECT ?capacidade ?nomeCapacidade ?descricao ?nivel ?isCore ?tipoCapacidade
+WHERE {
+    ?capacidade a vdml:Capability .
+    OPTIONAL { ?capacidade rdfs:label ?nomeCapacidade }
+    OPTIONAL { ?capacidade rdfs:comment ?descricao }
+    OPTIONAL { ?capacidade vdml:capability_level ?nivel }
+    OPTIONAL { ?capacidade vdml:is_core ?isCore }
+
+    BIND(IF(?isCore = true, "CORE (Diferenciadora)", "SUPPORT (Habilitadora)") AS ?tipoCapacidade)
+}
+ORDER BY DESC(?isCore) DESC(?nivel)
+
+# ==============================================================================
+# QUERY 2: Propostas de Valor e Capacidades que as Entregam
+# ==============================================================================
+# Propósito: Mapear quais capacidades suportam cada proposta de valor
+# Uso: Alinhamento estratégia-capacidades
+
+SELECT ?proposta ?nomeProposta ?descricaoProposta ?capacidade ?nomeCapacidade
+WHERE {
+    ?proposta a vdml:ValueProposition .
+    OPTIONAL { ?proposta rdfs:label ?nomeProposta }
+    OPTIONAL { ?proposta vdml:value_proposition_description ?descricaoProposta }
+
+    # Capacidades que entregam a proposta
+    ?capacidade vdml:delivers ?proposta .
+    OPTIONAL { ?capacidade rdfs:label ?nomeCapacidade }
+}
+ORDER BY ?proposta
+
+# ==============================================================================
+# QUERY 3: Componentes de Valor das Propostas
+# ==============================================================================
+# Propósito: Decompor propostas de valor em componentes (custo, tempo, qualidade, etc.)
+# Uso: Entender drivers de valor para clientes
+
+SELECT ?proposta ?nomeProposta ?componente ?nomeComponente ?tipo
+WHERE {
+    ?proposta a vdml:ValueProposition .
+    OPTIONAL { ?proposta rdfs:label ?nomeProposta }
+
+    ?proposta vdml:has_component ?componente .
+    OPTIONAL { ?componente rdfs:label ?nomeComponente }
+
+    # Tipo do componente (Cost, Time, Quality, Experience)
+    ?componente a ?tipo .
+    FILTER(?tipo != vdml:ValuePropositionComponent)
+}
+ORDER BY ?proposta
+
+# ==============================================================================
+# QUERY 4: Gaps de Desempenho (Objetivos vs. Realidade)
+# ==============================================================================
+# Propósito: Identificar métricas abaixo da meta
+# Uso: Priorização de iniciativas de melhoria
+
+SELECT ?metrica ?nomeMetrica ?unidade ?valorAtual ?valorAlvo
+       ((?valorAlvo - ?valorAtual) AS ?gap)
+       (((?valorAlvo - ?valorAtual) / ?valorAlvo * 100) AS ?gapPercentual)
+WHERE {
+    ?metrica a vdml:Measurement .
+    OPTIONAL { ?metrica rdfs:label ?nomeMetrica }
+    OPTIONAL { ?metrica vdml:measurement_unit ?unidade }
+
+    ?metrica vdml:measurement_value ?valorAtual .
+
+    ?objetivo vdml:has_objective ?metrica .
+    ?objetivo vdml:target_value ?valorAlvo .
+
+    FILTER(?valorAtual < ?valorAlvo)
+}
+ORDER BY DESC(?gapPercentual)
+
+# ==============================================================================
+# QUERY 5: Métodos de Realização de Capacidades
+# ==============================================================================
+# Propósito: Detalhar como capacidades são executadas (métodos e práticas)
+# Uso: Padronização, disseminação de melhores práticas
+
+SELECT ?capacidade ?nomeCapacidade ?metodo ?nomeMetodo ?pratica ?nomePratica
+WHERE {
+    ?capacidade a vdml:Capability .
+    OPTIONAL { ?capacidade rdfs:label ?nomeCapacidade }
+
+    ?capacidade vdml:realized_by ?metodo .
+    ?metodo a vdml:CapabilityMethod .
+    OPTIONAL { ?metodo rdfs:label ?nomeMetodo }
+
+    # Práticas utilizadas pelo método
+    OPTIONAL {
+        ?metodo vdml:uses_practice ?pratica .
+        ?pratica a vdml:Practice .
+        OPTIONAL { ?pratica rdfs:label ?nomePratica }
+    }
+}
+ORDER BY ?capacidade ?metodo
+
+# ==============================================================================
+# QUERY 6: Atividades e Recursos Necessários
+# ==============================================================================
+# Propósito: Mapear atividades e recursos consumidos
+# Uso: Planejamento de capacidade, orçamento
+
+SELECT ?atividade ?nomeAtividade ?recurso ?nomeRecurso ?quantidade ?custo ?duracao
+WHERE {
+    ?atividade a vdml:Activity .
+    OPTIONAL { ?atividade rdfs:label ?nomeAtividade }
+
+    # Recursos usados pela atividade
+    OPTIONAL {
+        ?atividade vdml:uses_resource ?usoRecurso .
+        ?usoRecurso vdml:resource_used ?recurso .
+        OPTIONAL { ?recurso rdfs:label ?nomeRecurso }
+        OPTIONAL { ?usoRecurso vdml:resource_quantity ?quantidade }
+    }
+
+    # Custo e duração da atividade
+    OPTIONAL { ?atividade vdml:cost ?custo }
+    OPTIONAL { ?atividade vdml:duration ?duracao }
+}
+ORDER BY ?atividade
+
+# ==============================================================================
+# QUERY 7: Análise de Colaborações na Rede de Negócios
+# ==============================================================================
+# Propósito: Identificar colaborações e papéis envolvidos
+# Uso: Gestão de parcerias, coordenação
+
+SELECT ?colaboracao ?nomeColaboracao ?rede ?papel ?nomePapel
+WHERE {
+    ?colaboracao a vdml:Collaboration .
+    OPTIONAL { ?colaboracao rdfs:label ?nomeColaboracao }
+
+    ?colaboracao vdml:part_of_network ?rede .
+
+    # Papéis envolvidos
+    ?colaboracao vdml:involves ?papel .
+    ?papel a vdml:Role .
+    OPTIONAL { ?papel rdfs:label ?nomePapel }
+}
+ORDER BY ?colaboracao
+
+# ==============================================================================
+# QUERY 8: Hierarquia de Capacidades (Suporte Mútuo)
+# ==============================================================================
+# Propósito: Visualizar dependências entre capacidades
+# Uso: Análise de impacto, priorização de investimentos
+
+SELECT ?capacidadePrincipal ?nomeCapPrincipal ?capacidadeSuporte ?nomeCapSuporte
+WHERE {
+    ?capacidadePrincipal a vdml:Capability .
+    OPTIONAL { ?capacidadePrincipal rdfs:label ?nomeCapPrincipal }
+
+    ?capacidadeSuporte vdml:supports ?capacidadePrincipal .
+    OPTIONAL { ?capacidadeSuporte rdfs:label ?nomeCapSuporte }
+}
+ORDER BY ?capacidadePrincipal
+
+# ==============================================================================
+# QUERY 9: Custo Total de Capacidades
+# ==============================================================================
+# Propósito: Calcular investimento necessário para manter/desenvolver capacidades
+# Uso: Orçamento, ROI de capacidades
+
+SELECT ?capacidade ?nomeCapacidade
+       (SUM(?custoAtividade) AS ?custoTotalOperacional)
+       (COUNT(DISTINCT ?atividade) AS ?numAtividades)
+WHERE {
+    ?capacidade a vdml:Capability .
+    OPTIONAL { ?capacidade rdfs:label ?nomeCapacidade }
+
+    ?metodo vdml:realizes ?capacidade .
+    ?metodo vdml:performs ?atividade .
+
+    OPTIONAL { ?atividade vdml:cost ?custoAtividade }
+}
+GROUP BY ?capacidade ?nomeCapacidade
+ORDER BY DESC(?custoTotalOperacional)

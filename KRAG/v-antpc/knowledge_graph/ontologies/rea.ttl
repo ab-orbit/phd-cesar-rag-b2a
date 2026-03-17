@@ -1,0 +1,343 @@
+# REA Ontology - Resource-Event-Agent Economic Accounting
+# Based on: McCarthy (1982) - The REA Accounting Model
+# Purpose: Model economic duality, resource flows, and agent accountability
+
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix dc:    <http://purl.org/dc/terms/> .
+
+@prefix rea:   <http://www.reo.org/ontology#> .
+
+# ============================================================================
+# ONTOLOGY METADATA
+# ============================================================================
+
+<http://www.reo.org/ontology> a owl:Ontology ;
+    rdfs:label "REA Ontology"@en ;
+    dc:title "REA - Resource-Event-Agent Economic Ontology"@en ;
+    dc:description "Ontologia para contabilidade e rastreamento de fluxos econômicos baseada no modelo REA. Modela dualidade econômica: toda entrada de recurso implica uma saída equivalente."@pt ;
+    dc:creator "William E. McCarthy" ;
+    owl:versionInfo "1.0" ;
+    dc:created "2026-03-16"^^xsd:date .
+
+# ============================================================================
+# CORE CLASSES
+# ============================================================================
+
+## Resource - Objetos de valor econômico controlados
+rea:Resource a owl:Class ;
+    rdfs:label "Resource"@en , "Recurso"@pt ;
+    rdfs:comment "Qualquer ativo tangível ou intangível de valor econômico que pode ser controlado por um agente. Ex: dinheiro, matéria-prima, produto acabado, direito autoral, capacidade produtiva."@pt ;
+    rdfs:subClassOf owl:Thing .
+
+## Economic Resource - Recurso quantificável
+rea:EconomicResource a owl:Class ;
+    rdfs:label "Economic Resource"@en , "Recurso Econômico"@pt ;
+    rdfs:comment "Recurso com valor monetário mensurável e rastreável através de eventos econômicos."@pt ;
+    rdfs:subClassOf rea:Resource .
+
+## Agent - Entidade com capacidade de controlar recursos
+rea:Agent a owl:Class ;
+    rdfs:label "Agent"@en , "Agente"@pt ;
+    rdfs:comment "Indivíduo ou organização que pode ter responsabilidade ou direitos sobre recursos. Pode participar de eventos econômicos."@pt ;
+    rdfs:subClassOf owl:Thing .
+
+## Economic Agent - Agente com accountability econômica
+rea:EconomicAgent a owl:Class ;
+    rdfs:label "Economic Agent"@en , "Agente Econômico"@pt ;
+    rdfs:comment "Agente que possui responsabilidade contábil e pode ser parte de transações financeiras."@pt ;
+    rdfs:subClassOf rea:Agent .
+
+## Event - Ocorrência que afeta recursos
+rea:Event a owl:Class ;
+    rdfs:label "Event"@en , "Evento"@pt ;
+    rdfs:comment "Atividade empresarial que impacta o controle ou quantidade de recursos econômicos."@pt ;
+    rdfs:subClassOf owl:Thing .
+
+## Economic Event - Evento que altera controle de recursos
+rea:EconomicEvent a owl:Class ;
+    rdfs:label "Economic Event"@en , "Evento Econômico"@pt ;
+    rdfs:comment "Evento que transfere controle de um recurso entre agentes ou altera sua quantidade/qualidade."@pt ;
+    rdfs:subClassOf rea:Event .
+
+## Increment Event - Evento que aumenta recursos
+rea:IncrementEvent a owl:Class ;
+    rdfs:label "Increment Event"@en , "Evento de Incremento"@pt ;
+    rdfs:comment "Evento que aumenta a quantidade ou valor de um recurso controlado por um agente (inflow)."@pt ;
+    rdfs:subClassOf rea:EconomicEvent .
+
+## Decrement Event - Evento que diminui recursos
+rea:DecrementEvent a owl:Class ;
+    rdfs:label "Decrement Event"@en , "Evento de Decremento"@pt ;
+    rdfs:comment "Evento que diminui a quantidade ou valor de um recurso controlado por um agente (outflow)."@pt ;
+    rdfs:subClassOf rea:EconomicEvent .
+
+## Exchange - Par de eventos duais
+rea:Exchange a owl:Class ;
+    rdfs:label "Exchange"@en , "Troca"@pt ;
+    rdfs:comment "Transação que conecta um evento de incremento com um evento de decremento, garantindo dualidade econômica."@pt ;
+    rdfs:subClassOf owl:Thing .
+
+## Commitment - Promessa de evento futuro
+rea:Commitment a owl:Class ;
+    rdfs:label "Commitment"@en , "Compromisso"@pt ;
+    rdfs:comment "Promessa ou obrigação de realizar um evento econômico no futuro (ex: pedido de compra, contrato)."@pt ;
+    rdfs:subClassOf owl:Thing .
+
+## Contract - Acordo vinculante entre agentes
+rea:Contract a owl:Class ;
+    rdfs:label "Contract"@en , "Contrato"@pt ;
+    rdfs:comment "Acordo formal que especifica compromissos recíprocos entre dois ou mais agentes."@pt ;
+    rdfs:subClassOf owl:Thing .
+
+## Business Process Script - Template de fluxo REA
+rea:BusinessProcessScript a owl:Class ;
+    rdfs:label "Business Process Script"@en , "Script de Processo de Negócio"@pt ;
+    rdfs:comment "Template ou padrão que define sequência típica de eventos REA (ex: processo de venda, processo de manufatura)."@pt ;
+    rdfs:subClassOf owl:Thing .
+
+## Stock Flow - Relacionamento de transformação
+rea:StockFlow a owl:Class ;
+    rdfs:label "Stock Flow"@en , "Fluxo de Estoque"@pt ;
+    rdfs:comment "Relação que conecta um evento econômico a um recurso, especificando a direção do fluxo (inflow ou outflow)."@pt ;
+    rdfs:subClassOf owl:Thing .
+
+# ============================================================================
+# OBJECT PROPERTIES
+# ============================================================================
+
+## Relacionamentos Event-Resource
+
+rea:increments a owl:ObjectProperty ;
+    rdfs:label "increments"@en , "incrementa"@pt ;
+    rdfs:comment "Evento aumenta a quantidade de um recurso."@pt ;
+    rdfs:domain rea:IncrementEvent ;
+    rdfs:range rea:Resource .
+
+rea:decrements a owl:ObjectProperty ;
+    rdfs:label "decrements"@en , "decrementa"@pt ;
+    rdfs:comment "Evento diminui a quantidade de um recurso."@pt ;
+    rdfs:domain rea:DecrementEvent ;
+    rdfs:range rea:Resource .
+
+rea:affects a owl:ObjectProperty ;
+    rdfs:label "affects"@en , "afeta"@pt ;
+    rdfs:comment "Relacionamento genérico de evento para recurso."@pt ;
+    rdfs:domain rea:Event ;
+    rdfs:range rea:Resource .
+
+## Relacionamentos Event-Agent
+
+rea:provides a owl:ObjectProperty ;
+    rdfs:label "provides"@en , "provê"@pt ;
+    rdfs:comment "Agente que fornece o recurso em um evento de decremento."@pt ;
+    rdfs:domain rea:EconomicEvent ;
+    rdfs:range rea:Agent .
+
+rea:receives a owl:ObjectProperty ;
+    rdfs:label "receives"@en , "recebe"@pt ;
+    rdfs:comment "Agente que recebe o recurso em um evento de incremento."@pt ;
+    rdfs:domain rea:EconomicEvent ;
+    rdfs:range rea:Agent .
+
+rea:participates_in a owl:ObjectProperty ;
+    rdfs:label "participates in"@en , "participa de"@pt ;
+    rdfs:domain rea:Agent ;
+    rdfs:range rea:Event .
+
+## Dualidade Econômica
+
+rea:duality a owl:ObjectProperty , owl:SymmetricProperty ;
+    rdfs:label "duality"@en , "dualidade"@pt ;
+    rdfs:comment "Relacionamento simétrico que conecta um evento de incremento com seu evento de decremento dual."@pt ;
+    rdfs:domain rea:EconomicEvent ;
+    rdfs:range rea:EconomicEvent .
+
+rea:inflow a owl:ObjectProperty ;
+    rdfs:label "inflow"@en , "entrada"@pt ;
+    rdfs:comment "Evento de incremento que compõe uma troca."@pt ;
+    rdfs:domain rea:Exchange ;
+    rdfs:range rea:IncrementEvent .
+
+rea:outflow a owl:ObjectProperty ;
+    rdfs:label "outflow"@en , "saída"@pt ;
+    rdfs:comment "Evento de decremento que compõe uma troca."@pt ;
+    rdfs:domain rea:Exchange ;
+    rdfs:range rea:DecrementEvent .
+
+## Compromissos e Contratos
+
+rea:fulfills a owl:ObjectProperty ;
+    rdfs:label "fulfills"@en , "cumpre"@pt ;
+    rdfs:comment "Evento econômico que cumpre um compromisso previamente assumido."@pt ;
+    rdfs:domain rea:EconomicEvent ;
+    rdfs:range rea:Commitment .
+
+rea:reciprocal a owl:ObjectProperty ;
+    rdfs:label "reciprocal"@en , "recíproco"@pt ;
+    rdfs:comment "Conecta compromissos duais dentro de um contrato."@pt ;
+    rdfs:domain rea:Commitment ;
+    rdfs:range rea:Commitment .
+
+rea:part_of_contract a owl:ObjectProperty ;
+    rdfs:label "part of contract"@en , "parte de contrato"@pt ;
+    rdfs:domain rea:Commitment ;
+    rdfs:range rea:Contract .
+
+## Business Process
+
+rea:follows_script a owl:ObjectProperty ;
+    rdfs:label "follows script"@en , "segue script"@pt ;
+    rdfs:comment "Evento segue um template de processo de negócio."@pt ;
+    rdfs:domain rea:Event ;
+    rdfs:range rea:BusinessProcessScript .
+
+rea:precedes a owl:ObjectProperty ;
+    rdfs:label "precedes"@en , "precede"@pt ;
+    rdfs:comment "Ordem temporal: evento A ocorre antes de evento B."@pt ;
+    rdfs:domain rea:Event ;
+    rdfs:range rea:Event .
+
+## Stock Flow
+
+rea:has_stockflow a owl:ObjectProperty ;
+    rdfs:label "has stockflow"@en , "tem fluxo de estoque"@pt ;
+    rdfs:domain rea:EconomicEvent ;
+    rdfs:range rea:StockFlow .
+
+rea:stockflow_resource a owl:ObjectProperty ;
+    rdfs:label "stockflow resource"@en , "recurso do fluxo"@pt ;
+    rdfs:domain rea:StockFlow ;
+    rdfs:range rea:Resource .
+
+# ============================================================================
+# DATATYPE PROPERTIES
+# ============================================================================
+
+rea:quantity a owl:DatatypeProperty ;
+    rdfs:label "quantity"@en , "quantidade"@pt ;
+    rdfs:comment "Quantidade de recurso afetada pelo evento."@pt ;
+    rdfs:domain rea:EconomicEvent ;
+    rdfs:range xsd:decimal .
+
+rea:unit_of_measure a owl:DatatypeProperty ;
+    rdfs:label "unit of measure"@en , "unidade de medida"@pt ;
+    rdfs:comment "Unidade para medir quantidade (kg, litros, peças, horas, etc.)."@pt ;
+    rdfs:domain rea:Resource ;
+    rdfs:range xsd:string .
+
+rea:monetary_value a owl:DatatypeProperty ;
+    rdfs:label "monetary value"@en , "valor monetário"@pt ;
+    rdfs:comment "Valor em dinheiro de um recurso ou evento."@pt ;
+    rdfs:range xsd:decimal .
+
+rea:event_date a owl:DatatypeProperty ;
+    rdfs:label "event date"@en , "data do evento"@pt ;
+    rdfs:comment "Timestamp de quando o evento econômico ocorreu."@pt ;
+    rdfs:domain rea:Event ;
+    rdfs:range xsd:dateTime .
+
+rea:commitment_date a owl:DatatypeProperty ;
+    rdfs:label "commitment date"@en , "data de compromisso"@pt ;
+    rdfs:comment "Data planejada para cumprimento de um compromisso."@pt ;
+    rdfs:domain rea:Commitment ;
+    rdfs:range xsd:dateTime .
+
+rea:stockflow_direction a owl:DatatypeProperty ;
+    rdfs:label "stockflow direction"@en , "direção do fluxo"@pt ;
+    rdfs:comment "Direção do fluxo: 'in' (entrada) ou 'out' (saída)."@pt ;
+    rdfs:domain rea:StockFlow ;
+    rdfs:range xsd:string .
+
+rea:current_balance a owl:DatatypeProperty ;
+    rdfs:label "current balance"@en , "saldo atual"@pt ;
+    rdfs:comment "Saldo atual de um recurso após todos os eventos."@pt ;
+    rdfs:domain rea:Resource ;
+    rdfs:range xsd:decimal .
+
+# ============================================================================
+# AXIOMS AND CONSTRAINTS
+# ============================================================================
+
+## Dualidade: Toda troca deve ter um inflow e um outflow
+[]  a owl:Restriction ;
+    owl:onProperty rea:inflow ;
+    owl:cardinality 1 ;
+    rdfs:comment "Uma troca deve ter exatamente um evento de entrada."@pt .
+
+[]  a owl:Restriction ;
+    owl:onProperty rea:outflow ;
+    owl:cardinality 1 ;
+    rdfs:comment "Uma troca deve ter exatamente um evento de saída."@pt .
+
+## Accountability: Todo evento econômico deve ter um agente responsável
+[]  a owl:Restriction ;
+    owl:onProperty rea:provides ;
+    owl:minCardinality 1 ;
+    rdfs:comment "Evento de decremento deve ter pelo menos um agente provedor."@pt .
+
+[]  a owl:Restriction ;
+    owl:onProperty rea:receives ;
+    owl:minCardinality 1 ;
+    rdfs:comment "Evento de incremento deve ter pelo menos um agente receptor."@pt .
+
+# ============================================================================
+# INDIVIDUALS (Exemplos de Tipos Comuns)
+# ============================================================================
+
+## Tipos de Recursos Comuns
+
+rea:Cash a rea:EconomicResource ;
+    rdfs:label "Cash"@en , "Dinheiro"@pt ;
+    rdfs:comment "Recurso monetário líquido."@pt ;
+    rea:unit_of_measure "BRL" .
+
+rea:RawMaterial a rea:EconomicResource ;
+    rdfs:label "Raw Material"@en , "Matéria-Prima"@pt ;
+    rdfs:comment "Material básico usado na produção."@pt .
+
+rea:FinishedGood a rea:EconomicResource ;
+    rdfs:label "Finished Good"@en , "Produto Acabado"@pt ;
+    rdfs:comment "Produto final pronto para venda."@pt .
+
+rea:Labor a rea:EconomicResource ;
+    rdfs:label "Labor"@en , "Trabalho"@pt ;
+    rdfs:comment "Horas de trabalho humano."@pt ;
+    rea:unit_of_measure "hours" .
+
+## Tipos de Agentes Comuns
+
+rea:Customer a rea:EconomicAgent ;
+    rdfs:label "Customer"@en , "Cliente"@pt ;
+    rdfs:comment "Agente que adquire bens ou serviços."@pt .
+
+rea:Supplier a rea:EconomicAgent ;
+    rdfs:label "Supplier"@en , "Fornecedor"@pt ;
+    rdfs:comment "Agente que fornece recursos."@pt .
+
+rea:Employee a rea:EconomicAgent ;
+    rdfs:label "Employee"@en , "Funcionário"@pt ;
+    rdfs:comment "Agente que fornece trabalho em troca de compensação."@pt .
+
+## Scripts de Processos Comuns
+
+rea:SalesProcess a rea:BusinessProcessScript ;
+    rdfs:label "Sales Process"@en , "Processo de Venda"@pt ;
+    rdfs:comment "Script: Cliente recebe produto (incremento) ↔ Empresa recebe dinheiro (incremento dual)."@pt .
+
+rea:PurchaseProcess a rea:BusinessProcessScript ;
+    rdfs:label "Purchase Process"@en , "Processo de Compra"@pt ;
+    rdfs:comment "Script: Empresa recebe matéria-prima (incremento) ↔ Fornecedor recebe pagamento (incremento dual)."@pt .
+
+rea:ManufacturingProcess a rea:BusinessProcessScript ;
+    rdfs:label "Manufacturing Process"@en , "Processo de Manufatura"@pt ;
+    rdfs:comment "Script: Converte matéria-prima (decremento) + trabalho (decremento) → produto acabado (incremento)."@pt .
+
+# ============================================================================
+# ANNOTATIONS
+# ============================================================================
+
+rea:Resource rdfs:seeAlso <https://en.wikipedia.org/wiki/Resources,_events,_agents> ;
+    dc:source "McCarthy, W. E. (1982). The REA accounting model: A generalized framework for accounting systems in a shared data environment."@en .

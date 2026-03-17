@@ -1,0 +1,196 @@
+# Queries SPARQL para Análise Econômica da Cadeia de Valor
+# Baseadas em e3value + REA
+
+PREFIX e3: <http://e3value.com/ontology#>
+PREFIX rea: <http://www.reo.org/ontology#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+
+# ==============================================================================
+# QUERY 1: Mapa Completo de Atores e Trocas de Valor
+# ==============================================================================
+# Propósito: Visualizar toda a rede de valor com atores e trocas
+# Uso: Identificar estrutura da cadeia, intermediários críticos
+
+SELECT DISTINCT ?provedor ?nomeProvedor ?receptor ?nomeReceptor ?valorObjeto ?valorMonetario
+WHERE {
+    # Identificar troca
+    ?troca a e3:ValueExchange .
+    ?troca e3:connects ?porta1 .
+    ?troca e3:connects ?porta2 .
+
+    # Porta de saída (quem oferece)
+    ?porta1 e3:offers ?valorObjeto .
+    ?porta1 e3:direction "out" .
+    ?provedor e3:has_value_port ?porta1 .
+
+    # Porta de entrada (quem recebe)
+    ?porta2 e3:requests ?valorObjeto .
+    ?porta2 e3:direction "in" .
+    ?receptor e3:has_value_port ?porta2 .
+
+    # Labels
+    OPTIONAL { ?provedor rdfs:label ?nomeProvedor }
+    OPTIONAL { ?receptor rdfs:label ?nomeReceptor }
+    OPTIONAL { ?valorObjeto e3:economic_value ?valorMonetario }
+}
+ORDER BY ?provedor ?receptor
+
+# ==============================================================================
+# QUERY 2: Folha de Lucratividade (Profitability Sheet) por Ator
+# ==============================================================================
+# Propósito: Calcular receitas, custos e margem de cada ator
+# Uso: Identificar atores mais/menos lucrativos
+
+SELECT ?ator ?nomeAtor
+       (SUM(?valorEntrada) AS ?receitaTotal)
+       (SUM(?valorSaida) AS ?custoTotal)
+       ((SUM(?valorEntrada) - SUM(?valorSaida)) AS ?lucroLiquido)
+       (((SUM(?valorEntrada) - SUM(?valorSaida)) / SUM(?valorEntrada) * 100) AS ?margemPercentual)
+WHERE {
+    ?ator a e3:Actor .
+    OPTIONAL { ?ator rdfs:label ?nomeAtor }
+
+    {
+        # Receitas (valores que entram)
+        ?ator e3:has_value_port ?portaEntrada .
+        ?portaEntrada e3:direction "in" .
+        ?portaEntrada e3:requests ?objEntrada .
+        ?objEntrada e3:economic_value ?valorEntrada .
+        FILTER(isNumeric(?valorEntrada))
+    }
+    UNION
+    {
+        # Custos (valores que saem)
+        ?ator e3:has_value_port ?portaSaida .
+        ?portaSaida e3:direction "out" .
+        ?portaSaida e3:offers ?objSaida .
+        ?objSaida e3:economic_value ?valorSaida .
+        FILTER(isNumeric(?valorSaida))
+    }
+}
+GROUP BY ?ator ?nomeAtor
+ORDER BY DESC(?margemPercentual)
+
+# ==============================================================================
+# QUERY 3: Caminhos de Dependência (Dependency Paths)
+# ==============================================================================
+# Propósito: Mapear dependências causais na cadeia de valor
+# Uso: Identificar gargalos e pontos críticos
+
+SELECT ?caminho ?stimulusInicial ?stimulusFinal ?troca
+WHERE {
+    ?caminho a e3:DependencyPath .
+    ?stimulusInicial e3:triggers ?caminho .
+    ?caminho e3:leads_to ?stimulusFinal .
+
+    # Trocas que fazem parte do caminho
+    OPTIONAL {
+        ?troca e3:part_of_path ?caminho .
+    }
+}
+ORDER BY ?caminho
+
+# ==============================================================================
+# QUERY 4: Dualidade Econômica REA (Verificação de Consistência)
+# ==============================================================================
+# Propósito: Verificar se todo evento de incremento tem decremento dual
+# Uso: Validação de integridade da modelagem
+
+SELECT ?troca ?eventoIncremento ?eventoDecremento ?recurso ?quantidade ?dataEvento
+WHERE {
+    # Identificar par de eventos duais
+    ?eventoIncremento a rea:IncrementEvent .
+    ?eventoDecremento a rea:DecrementEvent .
+
+    ?eventoIncremento rea:duality ?eventoDecremento .
+
+    # Recurso afetado
+    ?eventoIncremento rea:increments ?recurso .
+    ?eventoDecremento rea:decrements ?recurso .
+
+    # Detalhes
+    OPTIONAL { ?eventoIncremento rea:quantity ?quantidade }
+    OPTIONAL { ?eventoIncremento rea:event_date ?dataEvento }
+
+    # Troca REA
+    OPTIONAL { ?troca a rea:Exchange ;
+                      rea:inflow ?eventoIncremento ;
+                      rea:outflow ?eventoDecremento }
+}
+ORDER BY ?dataEvento
+
+# ==============================================================================
+# QUERY 5: Saldos de Recursos (REA Current Balance)
+# ==============================================================================
+# Propósito: Calcular estoque atual de recursos
+# Uso: Gestão de inventário, identificar excessos/faltas
+
+SELECT ?recurso ?nomeRecurso ?unidade
+       (SUM(?quantidadeIncremento) - SUM(?quantidadeDecremento) AS ?saldoAtual)
+WHERE {
+    ?recurso a rea:Resource .
+    OPTIONAL { ?recurso rdfs:label ?nomeRecurso }
+    OPTIONAL { ?recurso rea:unit_of_measure ?unidade }
+
+    {
+        # Incrementos (entradas)
+        ?eventoInc a rea:IncrementEvent .
+        ?eventoInc rea:increments ?recurso .
+        ?eventoInc rea:quantity ?quantidadeIncremento .
+    }
+    UNION
+    {
+        # Decrementos (saídas)
+        ?eventoDec a rea:DecrementEvent .
+        ?eventoDec rea:decrements ?recurso .
+        ?eventoDec rea:quantity ?quantidadeDecremento .
+    }
+}
+GROUP BY ?recurso ?nomeRecurso ?unidade
+HAVING ((SUM(?quantidadeIncremento) - SUM(?quantidadeDecremento)) != 0)
+ORDER BY ?recurso
+
+# ==============================================================================
+# QUERY 6: Análise de Concentração de Fornecedores
+# ==============================================================================
+# Propósito: Identificar dependências excessivas de poucos fornecedores
+# Uso: Gestão de risco de supply chain
+
+SELECT ?fornecedor ?nomeFornecedor (COUNT(DISTINCT ?cliente) AS ?numClientes) (SUM(?valor) AS ?volumeTotal)
+WHERE {
+    ?fornecedor a rea:Supplier .
+    OPTIONAL { ?fornecedor rdfs:label ?nomeFornecedor }
+
+    ?fornecedor rea:supplies ?material .
+    ?cliente rea:receives ?material .
+
+    ?material rea:monetary_value ?valor .
+}
+GROUP BY ?fornecedor ?nomeFornecedor
+ORDER BY DESC(?volumeTotal)
+
+# ==============================================================================
+# QUERY 7: Ciclo Caixa-a-Caixa (Cash-to-Cash Cycle)
+# ==============================================================================
+# Propósito: Calcular tempo entre pagamento a fornecedores e recebimento de clientes
+# Uso: Gestão de capital de giro
+
+SELECT ?ator ?nomeAtor
+       (AVG(?diasPagamentoFornecedor) AS ?DPO)
+       (AVG(?diasRecebimentoCliente) AS ?DSO)
+       ((AVG(?diasRecebimentoCliente) - AVG(?diasPagamentoFornecedor)) AS ?CashToCashCycle)
+WHERE {
+    ?ator a e3:Actor .
+    OPTIONAL { ?ator rdfs:label ?nomeAtor }
+
+    # Dias de pagamento a fornecedores (placeholder - dados reais viriam de propriedades)
+    OPTIONAL { ?ator vc:days_payable_outstanding ?diasPagamentoFornecedor }
+
+    # Dias de recebimento de clientes
+    OPTIONAL { ?ator vc:days_sales_outstanding ?diasRecebimentoCliente }
+
+    FILTER(BOUND(?diasPagamentoFornecedor) && BOUND(?diasRecebimentoCliente))
+}
+GROUP BY ?ator ?nomeAtor
+ORDER BY DESC(?CashToCashCycle)
