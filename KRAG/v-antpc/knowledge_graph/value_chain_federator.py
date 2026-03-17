@@ -258,18 +258,20 @@ class ValueChainFederator:
         query = """
         SELECT DISTINCT ?ator ?tipo ?descricao
         WHERE {
-            {
-                ?ator a e3:Actor .
-                ?ator a ?tipo .
-                OPTIONAL { ?ator rdfs:comment ?descricao }
+            GRAPH ?g {
+                {
+                    ?ator a e3:Actor .
+                    ?ator a ?tipo .
+                    OPTIONAL { ?ator rdfs:comment ?descricao }
+                }
+                UNION
+                {
+                    ?ator a rea:Agent .
+                    ?ator a ?tipo .
+                    OPTIONAL { ?ator rdfs:comment ?descricao }
+                }
+                FILTER(?tipo != e3:Actor && ?tipo != rea:Agent && ?tipo != owl:Thing)
             }
-            UNION
-            {
-                ?ator a rea:Agent .
-                ?ator a ?tipo .
-                OPTIONAL { ?ator rdfs:comment ?descricao }
-            }
-            FILTER(?tipo != e3:Actor && ?tipo != rea:Agent && ?tipo != owl:Thing)
         }
         ORDER BY ?ator
         """
@@ -298,18 +300,20 @@ class ValueChainFederator:
         query = """
         SELECT ?troca ?provedor ?receptor ?valorObjeto
         WHERE {
-            ?troca a e3:ValueExchange .
-            ?troca e3:connects ?porta1 .
-            ?troca e3:connects ?porta2 .
+            GRAPH ?g {
+                ?troca a e3:ValueExchange .
+                ?troca e3:connects ?porta1 .
+                ?troca e3:connects ?porta2 .
 
-            ?porta1 e3:offers ?valorObjeto .
-            ?ator1 e3:has_value_port ?porta1 .
+                ?porta1 e3:offers ?valorObjeto .
+                ?ator1 e3:has_value_port ?porta1 .
 
-            ?porta2 e3:requests ?valorObjeto .
-            ?ator2 e3:has_value_port ?porta2 .
+                ?porta2 e3:requests ?valorObjeto .
+                ?ator2 e3:has_value_port ?porta2 .
 
-            BIND(?ator1 AS ?provedor)
-            BIND(?ator2 AS ?receptor)
+                BIND(?ator1 AS ?provedor)
+                BIND(?ator2 AS ?receptor)
+            }
         }
         """
 
@@ -343,18 +347,20 @@ class ValueChainFederator:
             (SUM(?valorEntrada) AS ?receitaTotal)
             (SUM(?valorSaida) AS ?custoTotal)
         WHERE {{
-            {{
-                <{ator_uri}> e3:has_value_port ?portaEntrada .
-                ?portaEntrada e3:direction "in" .
-                ?portaEntrada e3:offers ?objEntrada .
-                ?objEntrada e3:economic_value ?valorEntrada .
-            }}
-            UNION
-            {{
-                <{ator_uri}> e3:has_value_port ?portaSaida .
-                ?portaSaida e3:direction "out" .
-                ?portaSaida e3:offers ?objSaida .
-                ?objSaida e3:economic_value ?valorSaida .
+            GRAPH ?g {{
+                {{
+                    <{ator_uri}> e3:has_value_port ?portaEntrada .
+                    ?portaEntrada e3:direction "in" .
+                    ?portaEntrada e3:offers ?objEntrada .
+                    ?objEntrada e3:economic_value ?valorEntrada .
+                }}
+                UNION
+                {{
+                    <{ator_uri}> e3:has_value_port ?portaSaida .
+                    ?portaSaida e3:direction "out" .
+                    ?portaSaida e3:offers ?objSaida .
+                    ?objSaida e3:economic_value ?valorSaida .
+                }}
             }}
         }}
         """
@@ -393,10 +399,12 @@ class ValueChainFederator:
         query = f"""
         SELECT ?capacidade ?descricao ?nivel ?isCore
         WHERE {{
-            ?capacidade a vdml:Capability .
-            OPTIONAL {{ ?capacidade rdfs:comment ?descricao }}
-            OPTIONAL {{ ?capacidade vdml:capability_level ?nivel }}
-            OPTIONAL {{ ?capacidade vdml:is_core ?isCore }}
+            GRAPH ?g {{
+                ?capacidade a vdml:Capability .
+                OPTIONAL {{ ?capacidade rdfs:comment ?descricao }}
+                OPTIONAL {{ ?capacidade vdml:capability_level ?nivel }}
+                OPTIONAL {{ ?capacidade vdml:is_core ?isCore }}
+            }}
         }}
         {filter_core}
         ORDER BY DESC(?isCore) ?capacidade
@@ -427,10 +435,12 @@ class ValueChainFederator:
         query = """
         SELECT ?metrica ?unidade ?valorAtual ?valorAlvo
         WHERE {
-            ?metrica a scor:Metric .
-            OPTIONAL { ?metrica scor:metric_unit ?unidade }
-            OPTIONAL { ?metrica scor:actual_value ?valorAtual }
-            OPTIONAL { ?metrica scor:target_value ?valorAlvo }
+            GRAPH ?g {
+                ?metrica a scor:Metric .
+                OPTIONAL { ?metrica scor:metric_unit ?unidade }
+                OPTIONAL { ?metrica scor:actual_value ?valorAtual }
+                OPTIONAL { ?metrica scor:target_value ?valorAlvo }
+            }
         }
         ORDER BY ?metrica
         """
@@ -460,15 +470,17 @@ class ValueChainFederator:
         query = """
         SELECT ?eventoIncremento ?eventoDecremento ?recurso ?quantidade
         WHERE {
-            ?eventoIncremento a rea:IncrementEvent .
-            ?eventoDecremento a rea:DecrementEvent .
+            GRAPH ?g {
+                ?eventoIncremento a rea:IncrementEvent .
+                ?eventoDecremento a rea:DecrementEvent .
 
-            ?eventoIncremento rea:duality ?eventoDecremento .
+                ?eventoIncremento rea:duality ?eventoDecremento .
 
-            ?eventoIncremento rea:increments ?recurso .
-            ?eventoDecremento rea:decrements ?recurso .
+                ?eventoIncremento rea:increments ?recurso .
+                ?eventoDecremento rea:decrements ?recurso .
 
-            OPTIONAL { ?eventoIncremento rea:quantity ?quantidade }
+                OPTIONAL { ?eventoIncremento rea:quantity ?quantidade }
+            }
         }
         """
 
@@ -491,13 +503,24 @@ class ValueChainFederator:
         """
         Retorna estatísticas gerais do knowledge graph.
 
+        IMPORTANTE: Busca em TODOS os named graphs, não apenas no default graph.
+        As ontologias são carregadas em grafos nomeados, então é necessário
+        usar GRAPH ?g { ... } para acessá-las.
+
         Returns:
             Dicionário com contagens de triplas, classes, etc.
         """
-        query_triplas = "SELECT (COUNT(*) AS ?total) WHERE { ?s ?p ?o }"
-        query_classes = "SELECT (COUNT(DISTINCT ?classe) AS ?total) WHERE { ?s a ?classe }"
-        query_atores = "SELECT (COUNT(DISTINCT ?ator) AS ?total) WHERE { ?ator a e3:Actor }"
-        query_capacidades = "SELECT (COUNT(DISTINCT ?cap) AS ?total) WHERE { ?cap a vdml:Capability }"
+        # Queries modificadas para buscar em TODOS os named graphs
+        query_triplas = "SELECT (COUNT(*) AS ?total) WHERE { GRAPH ?g { ?s ?p ?o } }"
+        query_classes = "SELECT (COUNT(DISTINCT ?classe) AS ?total) WHERE { GRAPH ?g { ?s a ?classe } }"
+        query_atores = """
+            PREFIX e3: <http://e3value.com/ontology#>
+            SELECT (COUNT(DISTINCT ?ator) AS ?total) WHERE { GRAPH ?g { ?ator a e3:Actor } }
+        """
+        query_capacidades = """
+            PREFIX vdml: <http://www.omg.org/spec/VDML/>
+            SELECT (COUNT(DISTINCT ?cap) AS ?total) WHERE { GRAPH ?g { ?cap a vdml:Capability } }
+        """
 
         stats = {}
 
