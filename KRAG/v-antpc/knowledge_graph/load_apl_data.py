@@ -108,6 +108,7 @@ def criar_triplas_trocas_valor() -> str:
     Cria triplas RDF para trocas de valor entre atores.
 
     Modelagem e3value: ValueExchange conecta ValuePorts de diferentes atores.
+    IMPORTANTE: Usar e3:has_value_port na direção ATOR → PORTA (não porta → ator)
     """
     return """
 # Trocas de Valor (Value Exchanges)
@@ -117,14 +118,18 @@ exchange:tecidos_rotamar a e3:ValueExchange ;
     rdfs:label "Compra de tecidos pela Rota do Mar" ;
     e3:connects port:tecelagem_out_tecidos, port:rotamar_in_tecidos .
 
+# Portas de valor da Tecelagem SP
+actor:TecelagemSP e3:has_value_port port:tecelagem_out_tecidos .
+
 port:tecelagem_out_tecidos a e3:ValuePort ;
     e3:direction "out" ;
-    e3:belongs_to actor:TecelagemSP ;
     e3:offers object:tecidos_planos .
+
+# Portas de valor da Rota do Mar
+actor:RotaDoMar e3:has_value_port port:rotamar_in_tecidos .
 
 port:rotamar_in_tecidos a e3:ValuePort ;
     e3:direction "in" ;
-    e3:belongs_to actor:RotaDoMar ;
     e3:requests object:tecidos_planos .
 
 object:tecidos_planos a e3:ValueObject ;
@@ -137,14 +142,16 @@ exchange:roupas_feira a e3:ValueExchange ;
     rdfs:label "Venda de confecções para a Feira da Sulanca" ;
     e3:connects port:rotamar_out_roupas, port:feira_in_roupas .
 
+actor:RotaDoMar e3:has_value_port port:rotamar_out_roupas .
+
 port:rotamar_out_roupas a e3:ValuePort ;
     e3:direction "out" ;
-    e3:belongs_to actor:RotaDoMar ;
     e3:offers object:roupas_casual .
+
+actor:FeiraSulancaCaruaru e3:has_value_port port:feira_in_roupas .
 
 port:feira_in_roupas a e3:ValuePort ;
     e3:direction "in" ;
-    e3:belongs_to actor:FeiraSulancaCaruaru ;
     e3:requests object:roupas_casual .
 
 object:roupas_casual a e3:ValueObject ;
@@ -157,14 +164,16 @@ exchange:feira_lojistas a e3:ValueExchange ;
     rdfs:label "Venda atacadista para lojistas regionais" ;
     e3:connects port:feira_out_atacado, port:lojistas_in_atacado .
 
+actor:FeiraSulancaCaruaru e3:has_value_port port:feira_out_atacado .
+
 port:feira_out_atacado a e3:ValuePort ;
     e3:direction "out" ;
-    e3:belongs_to actor:FeiraSulancaCaruaru ;
     e3:offers object:roupas_atacado .
+
+actor:LojistasRegionais e3:has_value_port port:lojistas_in_atacado .
 
 port:lojistas_in_atacado a e3:ValuePort ;
     e3:direction "in" ;
-    e3:belongs_to actor:LojistasRegionais ;
     e3:requests object:roupas_atacado .
 
 object:roupas_atacado a e3:ValueObject ;
