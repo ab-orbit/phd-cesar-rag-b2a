@@ -64,17 +64,20 @@ class VisualizadorKG:
             print("Visualização apenas para base in-memory implementada.")
             return
 
-        # Para isolar as instâncias, exigimos que TANTO o sujeito QUANTO o objeto
-        # tenham um status gerenciado (Candidato/Aprovado/etc) ou que o objeto seja literal
+        # Para isolar as instâncias textuais extraídas, exigimos que PELO MENOS a origem ou o destino
+        # seja uma entidade catalogada pelo nosso sistema (tendo kgmeta:status Candidato, Aprovado, etc).
         query = """
         PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
         PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
         PREFIX kgmeta: <http://phd-cesar-rag/meta#>
         
         SELECT ?s ?s_label ?s_status ?p ?o ?o_label ?o_status WHERE {
-            ?s kgmeta:status ?s_status .
             ?s ?p ?o .
-            ?o kgmeta:status ?o_status .
+            OPTIONAL { ?s kgmeta:status ?s_status }
+            OPTIONAL { ?o kgmeta:status ?o_status }
+            
+            # Mantém apenas as triplas onde pelo menos um lado foi gerado/catalogado no sistema
+            FILTER (bound(?s_status) || bound(?o_status))
             
             FILTER (?p NOT IN (rdf:type, rdfs:label, rdfs:comment, rdfs:domain, rdfs:range, kgmeta:status))
             

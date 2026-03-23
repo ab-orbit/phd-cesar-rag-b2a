@@ -1,0 +1,69 @@
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix kg: <http://phd-cesar-rag/kg#> .
+@prefix kgmeta: <http://phd-cesar-rag/meta#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+kg:Cliente a kg:Biotecnologia,
+        kg:EntidadeCandidata ;
+    rdfs:label "Cliente"@pt ;
+    kg:consome kg:Produto ;
+    kgmeta:status kgmeta:Aprovado ;
+    prov:wasAttributedTo "TutorialBot" .
+
+kg:Empresa a kg:Biotecnologia,
+        kg:EntidadeCandidata ;
+    rdfs:label "Empresa"@pt ;
+    kg:integra kg:Processos_de_produção ;
+    kgmeta:status kgmeta:Aprovado ;
+    prov:wasAttributedTo "TutorialBot" .
+
+kg:Fornecedor a kg:Biotecnologia,
+        kg:EntidadeCandidata ;
+    rdfs:label "Fornecedor"@pt ;
+    kg:fornece kg:Matéria-prima ;
+    kgmeta:status kgmeta:Aprovado ;
+    prov:wasAttributedTo "TutorialBot" .
+
+kg:Processo_de_produção a kg:Biotecnologia,
+        kg:EntidadeCandidata ;
+    rdfs:label "Processo de produção"@pt ;
+    kg:recebe kg:Matéria-prima ;
+    kgmeta:status kgmeta:Aprovado ;
+    prov:wasAttributedTo "TutorialBot" .
+
+<http://phd-cesar-rag/kg_custom_v1.1.0> a prov:Entity ;
+    dc:date "2026-03-23" .
+
+kg:Processos_de_produção a kg:Biotecnologia,
+        kg:EntidadeCandidata ;
+    rdfs:label "Processos de produção"@pt ;
+    kgmeta:status kgmeta:Aprovado ;
+    prov:wasAttributedTo "TutorialBot" .
+
+kg:Produto a kg:Biotecnologia,
+        kg:EntidadeCandidata ;
+    rdfs:label "Produto"@pt ;
+    kg:mitiga kg:Risco ;
+    kg:produz kg:Valor ;
+    kgmeta:status kgmeta:Aprovado ;
+    prov:wasAttributedTo "TutorialBot" .
+
+kg:Risco a kg:Biotecnologia,
+        kg:EntidadeCandidata ;
+    rdfs:label "Risco"@pt ;
+    kgmeta:status kgmeta:Aprovado ;
+    prov:wasAttributedTo "TutorialBot" .
+
+kg:Valor a kg:Biotecnologia,
+        kg:EntidadeCandidata ;
+    rdfs:label "Valor"@pt ;
+    kgmeta:status kgmeta:Aprovado ;
+    prov:wasAttributedTo "TutorialBot" .
+
+kg:Matéria-prima a kg:Biotecnologia,
+        kg:EntidadeCandidata ;
+    rdfs:label "Matéria-prima"@pt ;
+    kgmeta:status kgmeta:Aprovado ;
+    prov:wasAttributedTo "TutorialBot" .
+
