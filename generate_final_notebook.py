@@ -26,7 +26,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from dotenv import load_dotenv
 
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_openai import OpenAIEmbeddings, ChatOpenAI
 from langchain_community.vectorstores import Chroma
 from langchain_core.prompts import ChatPromptTemplate
